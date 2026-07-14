@@ -274,8 +274,8 @@
             <tr><td>Sparse vs dense</td><td>Phase 5 · <code>05_sparse_dense_fusion_plan.ipynb</code></td><td>Done</td></tr>
             <tr><td>Encoding &amp; scaling</td><td>Phase 4 · <code>04_tabular_preprocess.ipynb</code></td><td>Done</td></tr>
             <tr><td>Feature fusion (<code>hstack</code>)</td><td>Phase 6 · <code>06_feature_fusion.ipynb</code></td><td>Done</td></tr>
-            <tr><td>Logistic regression</td><td>Phase 7</td><td>Upcoming</td></tr>
-            <tr><td>L1 / L2 / ElasticNet</td><td>Phase 7–8</td><td>Upcoming</td></tr>
+            <tr><td>Logistic regression</td><td>Phase 7 · <code>07_train_l2_logreg.ipynb</code></td><td>Done (L2 baseline)</td></tr>
+            <tr><td>L1 / L2 / ElasticNet</td><td>Phase 7–8</td><td>L2 done; sweeps upcoming</td></tr>
             <tr><td>Precision / Recall / F1 / PR</td><td>Phase 8</td><td>Upcoming</td></tr>
             <tr><td>Feature coefficients</td><td>Phase 7–8</td><td>Upcoming</td></tr>
           </tbody>
@@ -683,7 +683,7 @@ duration_scaled ≈ -0.10</pre>
       <!-- 7 LOGISTIC -->
       <section id="logistic">
         <h2>7. Logistic regression (binary classification)</h2>
-        <p class="muted">Phase 7 model.</p>
+        <p class="muted">Phase 7 · baseline implemented in <code>notebooks/07_train_l2_logreg.ipynb</code>.</p>
 
         <h3>What it is</h3>
         <p>
@@ -724,7 +724,7 @@ duration_scaled ≈ -0.10</pre>
       <!-- 8 REG -->
       <section id="regularization">
         <h2>8. Regularization: L1 (Lasso), L2 (Ridge), ElasticNet</h2>
-        <p class="muted">Critical for high-dimensional text + tabular fusion.</p>
+        <p class="muted">L2 baseline trained in Phase 7; strength sweeps in Phase 8.</p>
 
         <h3>What it is</h3>
         <p>
