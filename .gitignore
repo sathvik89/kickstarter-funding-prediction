@@ -1,0 +1,37 @@
+# virtual environment
+.venv/
+venv/
+env/
+
+# python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# notebooks / local artifacts
+*.log
+
+# keep processed outputs local by default (reproducible from raw)
+# uncomment if you do not want processed matrices in git:
+# data/interim/*
+# data/processed/*
+# !data/interim/.gitkeep
+# !data/processed/.gitkeep
+
+# large / local report artifacts (keep figures tracked when intentional)
+reports/*.pdf
+reports/*.pptx

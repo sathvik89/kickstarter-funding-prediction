@@ -1,0 +1,47 @@
+# Data notes
+
+## File
+
+| Item | Value |
+|------|--------|
+| File | `data/raw/kickstarter_2018.csv` |
+| Rows | ~378,661 |
+| Columns | 15 |
+| Approx size | ~58 MB |
+
+## Columns
+
+| Column | Role |
+|--------|------|
+| `ID` | Identifier (not a feature) |
+| `name` | Text feature |
+| `category` | Categorical feature |
+| `main_category` | Categorical feature |
+| `currency` | Categorical feature |
+| `deadline` | Used to derive duration |
+| `launched` | Used to derive duration |
+| `goal` | Numeric (prefer `usd_goal_real` when consistent) |
+| `usd_goal_real` | Numeric feature (goal in USD) |
+| `country` | Categorical feature |
+| `state` | Target source |
+| `pledged` | Leakage — exclude |
+| `backers` | Leakage — exclude |
+| `usd pledged` | Leakage — exclude |
+| `usd_pledged_real` | Leakage — exclude |
+
+## Target construction
+
+Keep rows where `state` is `successful` or `failed`.
+
+Map:
+
+- `successful` → 1
+- `failed` → 0
+
+## Folder convention
+
+| Path | Purpose |
+|------|---------|
+| `data/raw/` | Untouched source data |
+| `data/interim/` | Cleaned tables after EDA / text cleaning |
+| `data/processed/` | Matrices and train/test splits ready for modeling |
