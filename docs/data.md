@@ -59,3 +59,4 @@ Map:
 |------|------|-------------|
 | `data/processed/X_text_*.npz` | Phase 3 TF-IDF | Sparse text matrices (`max_features=2500`), fit on train only |
 | `data/processed/split_ids.csv` | Phase 3 | Shared train/test IDs for later tabular alignment |
+| `data/processed/X_tab_*.npz` | Phase 4 tabular | Scaled numerics + one-hot categoricals, same row order as text |

@@ -63,6 +63,7 @@ python -m ipykernel install --user --name=ml-summer --display-name="ML Summer Pr
 - [EDA findings (what the figures say)](docs/eda-findings.md)
 - [Text cleaning notes](docs/text-cleaning.md)
 - [TF-IDF notes](docs/tfidf.md)
+- [Tabular preprocessing notes](docs/tabular.md)
 - **[Concept learning guide (HTML)](docs/learning-guide.html)** — TF-IDF, fusion, regularization, metrics, and more
 
 ## Stack

@@ -1,0 +1,20 @@
+{
+  "numeric_cols": [
+    "usd_goal_real",
+    "duration_days"
+  ],
+  "categorical_cols": [
+    "category",
+    "main_category",
+    "currency",
+    "country"
+  ],
+  "n_train": 264728,
+  "n_test": 66183,
+  "n_features": 213,
+  "n_numeric": 2,
+  "n_onehot": 211,
+  "train_density": 0.028169014084507043,
+  "test_density": 0.028169014084507043,
+  "aligned_with": "split_ids.csv + X_text_*.npz + y_*.npy"
+}
