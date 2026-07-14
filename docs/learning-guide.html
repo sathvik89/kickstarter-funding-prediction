@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ML Summer Project — Concept Learning Guide</title>
+  <style>
+    :root {
+      --bg: #f7f4ef;
+      --paper: #fffdf9;
+      --ink: #1c1a16;
+      --muted: #5c574f;
+      --line: #d9d2c5;
+      --accent: #1f5c4d;
+      --accent-soft: #e4efe9;
+      --warn: #8a4b1f;
+      --code-bg: #efeae1;
+      --max: 920px;
+      --toc-w: 240px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #efe6d4 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, #dfece6 0%, transparent 50%),
+        var(--bg);
+      line-height: 1.65;
+      font-size: 18px;
+    }
+
+    .wrap {
+      display: grid;
+      grid-template-columns: var(--toc-w) minmax(0, var(--max));
+      gap: 2.5rem;
+      max-width: calc(var(--toc-w) + var(--max) + 4rem);
+      margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+    }
+
+    nav.toc {
+      position: sticky;
+      top: 1rem;
+      align-self: start;
+      max-height: calc(100vh - 2rem);
+      overflow: auto;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      background: rgba(255, 253, 249, 0.9);
+      backdrop-filter: blur(6px);
+    }
+
+    nav.toc h2 {
+      margin: 0 0 0.75rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+
+    nav.toc a {
+      display: block;
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 0.92rem;
+      padding: 0.28rem 0;
+      border-left: 2px solid transparent;
+      padding-left: 0.6rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+
+    nav.toc a:hover {
+      border-left-color: var(--accent);
+      color: var(--accent);
+    }
+
+    main {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      padding: 2rem 2rem 3rem;
+    }
+
+    header.doc-head {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    header.doc-head p.kicker {
+      margin: 0 0 0.35rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    h1 {
+      margin: 0 0 0.6rem;
+      font-size: 2.1rem;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    h2 {
+      margin: 2.6rem 0 0.8rem;
+      font-size: 1.55rem;
+      border-top: 1px solid var(--line);
+      padding-top: 1.6rem;
+    }
+
+    h3 {
+      margin: 1.6rem 0 0.5rem;
+      font-size: 1.15rem;
+      color: var(--accent);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-weight: 600;
+    }
+
+    h4 {
+      margin: 1.1rem 0 0.35rem;
+      font-size: 1rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+
+    p, li { color: var(--ink); }
+    .muted { color: var(--muted); }
+
+    .lead {
+      font-size: 1.05rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .card {
+      background: var(--accent-soft);
+      border: 1px solid #c9ddd4;
+      padding: 0.9rem 1rem;
+      margin: 1rem 0;
+    }
+
+    .warn {
+      background: #f7ebe1;
+      border: 1px solid #e2c3a8;
+      padding: 0.9rem 1rem;
+      margin: 1rem 0;
+    }
+
+    code, .mono {
+      font-family: "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.88em;
+    }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      padding: 0.95rem 1rem;
+      overflow-x: auto;
+      font-family: "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.84rem;
+      line-height: 1.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 0.55rem 0.65rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th { background: #efeae1; }
+
+    ul.tight li { margin: 0.25rem 0; }
+
+    .formula {
+      display: block;
+      text-align: center;
+      margin: 1rem 0;
+      padding: 0.8rem;
+      background: #f3eee6;
+      border: 1px dashed var(--line);
+      font-family: "Iowan Old Style", Georgia, serif;
+      font-size: 1.05rem;
+    }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+
+    @media (max-width: 920px) {
+      .wrap { grid-template-columns: 1fr; }
+      nav.toc { position: relative; max-height: none; }
+      main { padding: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="toc" aria-label="Table of contents">
+      <h2>Contents</h2>
+      <a href="#how-to-use">How to use this guide</a>
+      <a href="#map">Concept → phase map</a>
+      <a href="#text-cleaning">1. Text cleaning</a>
+      <a href="#train-test">2. Train/test &amp; leakage</a>
+      <a href="#tfidf">3. TF-IDF</a>
+      <a href="#sparse-dense">4. Sparse vs dense</a>
+      <a href="#encoding-scaling">5. Encoding &amp; scaling</a>
+      <a href="#fusion">6. Feature fusion</a>
+      <a href="#logistic">7. Logistic regression</a>
+      <a href="#regularization">8. L1 / L2 / ElasticNet</a>
+      <a href="#metrics">9. Precision, Recall, F1, PR</a>
+      <a href="#coefficients">10. Feature coefficients</a>
+      <a href="#checklist">Quick revision checklist</a>
+    </nav>
+
+    <main>
+      <header class="doc-head">
+        <p class="kicker">Predictive Sales Analytics · Multi-Modal Feature Fusion</p>
+        <h1>Concept Learning Guide</h1>
+        <p class="lead">
+          A single self-contained reference for the ML ideas in this project.
+          Each topic covers <strong>what it is</strong>, <strong>why it exists</strong>,
+          <strong>how it works</strong>, <strong>types</strong>, <strong>where else it is used</strong>,
+          and <strong>how we use it here</strong> (with notebook pointers).
+        </p>
+      </header>
+
+      <section id="how-to-use">
+        <h2>How to use this guide</h2>
+        <p>
+          Read one concept before or after the matching notebook. You do not need outside tutorials
+          for these topics if you work through the sections in order.
+        </p>
+        <div class="card">
+          <strong>Suggested loop:</strong> skim “Why we need it” → read “How it works” →
+          look at the general example → open the notebook section → return here for revision.
+        </div>
+        <p class="muted">
+          Notebooks live in <code>notebooks/</code>. Processed artifacts live in
+          <code>data/processed/</code>. This HTML is the concept layer on top.
+        </p>
+      </section>
+
+      <section id="map">
+        <h2>Concept → phase map</h2>
+        <table>
+          <thead>
+            <tr><th>Concept</th><th>Phase / notebook</th><th>Status in project</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Text cleaning &amp; stopwords</td><td>Phase 2 · <code>02_text_cleaning.ipynb</code></td><td>Done</td></tr>
+            <tr><td>Train/test split &amp; leakage</td><td>Phase 1–3 · EDA + TF-IDF</td><td>Done</td></tr>
+            <tr><td>TF-IDF</td><td>Phase 3 · <code>03_tfidf.ipynb</code></td><td>Done</td></tr>
+            <tr><td>Sparse vs dense</td><td>Phase 3–5</td><td>Introduced; deepen in Phase 5</td></tr>
+            <tr><td>Encoding &amp; scaling</td><td>Phase 4</td><td>Upcoming</td></tr>
+            <tr><td>Feature fusion (<code>hstack</code>)</td><td>Phase 5–6</td><td>Upcoming</td></tr>
+            <tr><td>Logistic regression</td><td>Phase 7</td><td>Upcoming</td></tr>
+            <tr><td>L1 / L2 / ElasticNet</td><td>Phase 7–8</td><td>Upcoming</td></tr>
+            <tr><td>Precision / Recall / F1 / PR</td><td>Phase 8</td><td>Upcoming</td></tr>
+            <tr><td>Feature coefficients</td><td>Phase 7–8</td><td>Upcoming</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 1 TEXT CLEANING -->
+      <section id="text-cleaning">
+        <h2>1. Text cleaning &amp; stopwords</h2>
+
+        <h3>What it is</h3>
+        <p>
+          Text cleaning is the process of turning messy human language into a consistent string
+          of useful tokens before any numerical conversion. Stopwords are extremely common words
+          (<em>the, is, of, and, …</em>) that usually carry little topic signal for bag-of-words models.
+        </p>
+
+        <h3>Why we need it</h3>
+        <ul class="tight">
+          <li>Raw text has inconsistent casing, punctuation, symbols, and filler words.</li>
+          <li>Models like TF-IDF count tokens. Noise tokens waste vocabulary slots and dilute signal.</li>
+          <li>Cleaning makes “Music Album!” and “music album” look the same to the model.</li>
+        </ul>
+
+        <h3>How it works (typical pipeline)</h3>
+        <ol>
+          <li><strong>Lowercase</strong> — unify <code>Music</code> / <code>music</code>.</li>
+          <li><strong>Remove non-letters</strong> (or keep digits if your domain needs them).</li>
+          <li><strong>Tokenize</strong> — split into words.</li>
+          <li><strong>Drop stopwords</strong> — remove low-value common words.</li>
+          <li><strong>Optional:</strong> stemming/lemmatization, rare-word filtering (often done inside the vectorizer).</li>
+        </ol>
+
+        <h3>Types / choices</h3>
+        <table>
+          <thead><tr><th>Choice</th><th>What it does</th><th>When to use</th></tr></thead>
+          <tbody>
+            <tr><td>Stopword lists (sklearn / NLTK)</td><td>Removes a fixed English list</td><td>Short titles, bag-of-words, classic NLP baselines</td></tr>
+            <tr><td>Keep punctuation/emojis</td><td>Preserves style signals</td><td>Sentiment, social media tone</td></tr>
+            <tr><td>Stemming / lemmatization</td><td>Maps <code>running/runs</code> → root</td><td>Long documents, vocabulary reduction</td></tr>
+            <tr><td>Domain stopwords</td><td>Custom ignore list</td><td>Legal, medical, support tickets</td></tr>
+          </tbody>
+        </table>
+
+        <h3>General example</h3>
+        <pre>Raw:     "The Songs of Adelaide &amp; Abullah!"
+Lower:   "the songs of adelaide &amp; abullah!"
+Letters: "the songs of adelaide   abullah "
+Tokens:  the, songs, of, adelaide, abullah
+Clean:   "songs adelaide abullah"</pre>
+
+        <h3>In our project</h3>
+        <p>
+          Notebook: <code>notebooks/02_text_cleaning.ipynb</code><br />
+          Column created: <code>name_clean</code><br />
+          Saved to: <code>data/interim/ks_text_cleaned.csv</code>
+        </p>
+        <p>
+          Kickstarter 2018 has no long description field, so the text modality is the short
+          campaign <code>name</code>. Cleaning still matters: titles are short, so every wasted
+          token hurts more than in long articles.
+        </p>
+
+        <h3>Where else this applies</h3>
+        <ul class="tight">
+          <li>Spam classification on email subjects</li>
+          <li>Support-ticket tagging from customer messages</li>
+          <li>News topic classification</li>
+          <li>Resume / job-description matching</li>
+          <li>Product review sentiment baselines</li>
+        </ul>
+
+        <h3>Key takeaway</h3>
+        <p>Cleaning is not “making text pretty.” It is controlling what the model is allowed to count.</p>
+      </section>
+
+      <!-- 2 TRAIN TEST LEAKAGE -->
+      <section id="train-test">
+        <h2>2. Train/test split &amp; data leakage</h2>
+
+        <h3>What it is</h3>
+        <p>
+          A <strong>train/test split</strong> separates data you learn from (train) and data you
+          evaluate on (test). <strong>Leakage</strong> means the model saw information it would
+          not have at prediction time — either from the future, from the label itself, or from
+          statistics computed using the test rows.
+        </p>
+
+        <h3>Why we need it</h3>
+        <p>
+          Without a clean split, scores look great and fail in production. Leakage is the most
+          common silent killer of student and industry demos.
+        </p>
+
+        <h3>How it works</h3>
+        <ul class="tight">
+          <li><strong>Random split:</strong> shuffle then cut (e.g. 80/20).</li>
+          <li><strong>Stratified split:</strong> keep class proportions similar in both sets (important for imbalanced labels).</li>
+          <li><strong>Time-based split:</strong> train on past, test on future (sales, finance, clicks).</li>
+        </ul>
+        <div class="warn">
+          <strong>Fitting rule:</strong> any transformer that learns from data
+          (TF-IDF vocabulary, StandardScaler mean/std, OneHotEncoder categories)
+          must be <code>fit</code> on train only, then <code>transform</code> on test.
+        </div>
+
+        <h3>Types of leakage (practical)</h3>
+        <table>
+          <thead><tr><th>Type</th><th>Example</th><th>Fix</th></tr></thead>
+          <tbody>
+            <tr><td>Target leakage</td><td>Using <code>backers</code> to predict funding success</td><td>Drop outcome columns</td></tr>
+            <tr><td>Fit leakage</td><td>Fitting TF-IDF on all rows including test</td><td>Fit on train only</td></tr>
+            <tr><td>Duplicate leakage</td><td>Same ID in train and test</td><td>Deduplicate before split</td></tr>
+            <tr><td>Pipeline leakage</td><td>Scaling with global mean including test</td><td>Use Pipeline + train fit</td></tr>
+          </tbody>
+        </table>
+
+        <h3>General example</h3>
+        <pre># Wrong: learn vocab from everyone, then "evaluate"
+vectorizer.fit(all_texts)
+X = vectorizer.transform(all_texts)
+
+# Right
+X_train = vectorizer.fit_transform(train_texts)
+X_test  = vectorizer.transform(test_texts)</pre>
+
+        <h3>In our project</h3>
+        <ul class="tight">
+          <li>Phase 1 dropped leakage columns: <code>pledged</code>, <code>backers</code>, <code>usd pledged</code>, <code>usd_pledged_real</code>.</li>
+          <li>Phase 3 used stratified 80/20 split (<code>random_state=42</code>) before TF-IDF.</li>
+          <li>IDs saved in <code>data/processed/split_ids.csv</code> so later tabular steps stay aligned.</li>
+        </ul>
+
+        <h3>Where else this applies</h3>
+        <ul class="tight">
+          <li>Credit risk scoring (never use post-default fields)</li>
+          <li>Churn prediction (exclude cancellation timestamps as features)</li>
+          <li>Medical diagnosis models (exclude lab values only available after decision)</li>
+          <li>Forecasting demand with a time-aware split</li>
+        </ul>
+      </section>
+
+      <!-- 3 TFIDF -->
+      <section id="tfidf">
+        <h2>3. TF-IDF (Term Frequency–Inverse Document Frequency)</h2>
+
+        <h3>What it is</h3>
+        <p>
+          TF-IDF converts text into numbers. Each document becomes a vector over a vocabulary.
+          A word scores high if it appears often in <em>this</em> document but rarely across
+          the whole corpus.
+        </p>
+
+        <h3>Why we need it</h3>
+        <p>
+          Classifiers cannot read strings. Raw counts treat “project” (everywhere) the same as
+          “ballet” (rare and informative). TF-IDF down-weights common words and up-weights
+          distinctive words.
+        </p>
+
+        <h3>How it works</h3>
+        <p><strong>Term Frequency (TF)</strong> — how often term <em>t</em> appears in document <em>d</em>.</p>
+        <span class="formula">TF(t, d) = count(t in d) / total tokens in d &nbsp; <span class="muted">(one common form)</span></span>
+        <p><strong>Inverse Document Frequency (IDF)</strong> — how rare term <em>t</em> is across documents.</p>
+        <span class="formula">IDF(t) = log( (1 + N) / (1 + df(t)) ) + 1 &nbsp; <span class="muted">(sklearn-style smoothing)</span></span>
+        <p><strong>TF-IDF weight</strong></p>
+        <span class="formula">TF-IDF(t, d) = TF(t, d) × IDF(t)</span>
+        <p>
+          Sklearn then often L2-normalizes each document vector so long vs short documents are comparable.
+        </p>
+
+        <h3>Types / knobs</h3>
+        <table>
+          <thead><tr><th>Knob</th><th>Meaning</th><th>Our choice</th></tr></thead>
+          <tbody>
+            <tr><td><code>max_features</code></td><td>Keep only top N terms by frequency across corpus</td><td>2500 (handbook limit)</td></tr>
+            <tr><td><code>ngram_range</code></td><td>Unigrams vs bigrams (<code>"new york"</code>)</td><td>(1, 1) for Phase 3 simplicity</td></tr>
+            <tr><td><code>min_df</code> / <code>max_df</code></td><td>Ignore ultra-rare / ultra-common terms</td><td><code>min_df=2</code></td></tr>
+            <tr><td>Binary TF</td><td>Presence/absence instead of counts</td><td>Not used (default counts)</td></tr>
+          </tbody>
+        </table>
+
+        <h3>General example</h3>
+        <p>Corpus of 3 titles:</p>
+        <ol>
+          <li>“music album release”</li>
+          <li>“music festival poster”</li>
+          <li>“ballet dance show”</li>
+        </ol>
+        <p>
+          <code>music</code> appears in 2/3 docs → lower IDF.<br />
+          <code>ballet</code> appears in 1/3 → higher IDF.<br />
+          In doc 3, <code>ballet</code> gets a stronger weight than a repeated common word would.
+        </p>
+
+        <h3>In our project</h3>
+        <p>
+          Notebook: <code>notebooks/03_tfidf.ipynb</code><br />
+          Matrices: <code>X_text_train.npz</code>, <code>X_text_test.npz</code> shape
+          <code>[N × 2500]</code>, density ≈ 0.1%.
+        </p>
+        <pre>vectorizer = TfidfVectorizer(max_features=2500, ngram_range=(1, 1), min_df=2)
+X_train = vectorizer.fit_transform(train_df["name_clean"])
+X_test  = vectorizer.transform(test_df["name_clean"])</pre>
+
+        <h3>Where else this applies</h3>
+        <ul class="tight">
+          <li>Search ranking and keyword retrieval baselines</li>
+          <li>Document classification (news, tickets, emails)</li>
+          <li>Duplicate question detection (with cosine similarity)</li>
+          <li>Simple content recommendation</li>
+          <li>As features feeding logistic regression / linear SVM</li>
+        </ul>
+
+        <div class="card">
+          <strong>Learning tip:</strong> TF-IDF is still a “bag of words.” Word order is mostly ignored
+          unless you use n-grams. Transformers understand context better, but TF-IDF remains a
+          strong, interpretable baseline and is required in this project.
+        </div>
+      </section>
+
+      <!-- 4 SPARSE DENSE -->
+      <section id="sparse-dense">
+        <h2>4. Sparse vs dense matrices</h2>
+
+        <h3>What it is</h3>
+        <p>
+          A <strong>dense</strong> matrix stores every value (including zeros).
+          A <strong>sparse</strong> matrix stores mostly the non-zero values and their positions.
+        </p>
+
+        <h3>Why we need it</h3>
+        <p>
+          TF-IDF vectors are almost all zeros: each title activates maybe 3–8 tokens out of 2500.
+          Storing that densely wastes RAM and CPU. Sparse formats keep high-dimensional text affordable.
+        </p>
+
+        <h3>How it works (intuition)</h3>
+        <pre>Dense row:  [0, 0, 0.41, 0, 0, 0, 0.22, 0, ... 0]   # 2500 numbers stored
+Sparse row: store only (index=2 → 0.41), (index=6 → 0.22)</pre>
+        <p>
+          Common SciPy formats: CSR / CSC (efficient math), COO (easy construction).
+          Sklearn TF-IDF returns sparse CSR by default.
+        </p>
+
+        <h3>Types</h3>
+        <table>
+          <thead><tr><th>Format</th><th>Best for</th></tr></thead>
+          <tbody>
+            <tr><td>CSR (Compressed Sparse Row)</td><td>Row slicing, matrix × vector, sklearn estimators</td></tr>
+            <tr><td>CSC</td><td>Column slicing</td></tr>
+            <tr><td>COO</td><td>Building matrices from coordinate triples</td></tr>
+            <tr><td>Dense ndarray</td><td>Small tabular matrices after one-hot may still be manageable</td></tr>
+          </tbody>
+        </table>
+
+        <h3>In our project</h3>
+        <p>
+          Text features are sparse (<code>.npz</code> files). Tabular features will be denser.
+          Direct <code>np.hstack</code> on mixed types is the wrong tool; we will use
+          <code>scipy.sparse.hstack</code> (Phase 5–6).
+        </p>
+
+        <h3>Where else this applies</h3>
+        <ul class="tight">
+          <li>One-hot encodings with huge category spaces</li>
+          <li>Recommender user–item matrices</li>
+          <li>Graph adjacency matrices</li>
+          <li>Genomics / bag-of-k-mers features</li>
+        </ul>
+      </section>
+
+      <!-- 5 ENCODING SCALING -->
+      <section id="encoding-scaling">
+        <h2>5. Categorical encoding &amp; numeric scaling</h2>
+        <p class="muted">Phase 4 concept (read now; implement next).</p>
+
+        <h3>What it is</h3>
+        <p>
+          <strong>Encoding</strong> turns categories (country, currency, category) into numbers.
+          <strong>Scaling</strong> puts continuous numbers on a comparable scale so large-magnitude
+          features do not dominate distance- or gradient-based linear models.
+        </p>
+
+        <h3>Why we need it</h3>
+        <ul class="tight">
+          <li>Logistic regression expects numeric inputs.</li>
+          <li><code>usd_goal_real</code> can be thousands; one-hot flags are 0/1. Without scaling, goal magnitude can overwhelm.</li>
+          <li>After fusion with TF-IDF (already normalized), tabular scaling keeps modalities balanced.</li>
+        </ul>
+
+        <h3>How encoding works</h3>
+        <h4>One-hot encoding</h4>
+        <p>Each category level becomes its own 0/1 column.</p>
+        <pre>country: US → [1, 0, 0]
+country: GB → [0, 1, 0]
+country: CA → [0, 0, 1]</pre>
+        <h4>Other encoding types</h4>
+        <table>
+          <thead><tr><th>Type</th><th>Idea</th><th>Watch-out</th></tr></thead>
+          <tbody>
+            <tr><td>One-hot</td><td>Independent binary columns</td><td>Many levels → many columns</td></tr>
+            <tr><td>Ordinal</td><td>Map to ranked integers</td><td>Only if order is real</td></tr>
+            <tr><td>Target / mean encoding</td><td>Replace category by average label</td><td>Easy leakage if done wrong</td></tr>
+            <tr><td>Hashing trick</td><td>Hash categories into fixed bins</td><td>Collisions; less interpretable</td></tr>
+          </tbody>
+        </table>
+
+        <h3>How scaling works</h3>
+        <table>
+          <thead><tr><th>Scaler</th><th>Formula idea</th><th>Use when</th></tr></thead>
+          <tbody>
+            <tr><td>StandardScaler</td><td>(x − mean) / std</td><td>Default for linear models</td></tr>
+            <tr><td>MinMaxScaler</td><td>stretch to [0, 1]</td><td>Bounded neural-net inputs</td></tr>
+            <tr><td>RobustScaler</td><td>uses median/IQR</td><td>Heavy outliers</td></tr>
+            <tr><td>Log transform</td><td>log1p(x)</td><td>Right-skewed money/counts (often before scaling)</td></tr>
+          </tbody>
+        </table>
+
+        <h3>General example</h3>
+        <pre>goal_usd = 15000
+duration = 30
+
+After StandardScaler (fit on train):
+goal_scaled ≈ 0.42
+duration_scaled ≈ -0.10</pre>
+
+        <h3>In our project (planned)</h3>
+        <ul class="tight">
+          <li>Numeric: <code>usd_goal_real</code>, <code>duration_days</code> → <code>StandardScaler</code></li>
+          <li>Categorical: <code>category</code>, <code>main_category</code>, <code>currency</code>, <code>country</code> → <code>OneHotEncoder</code></li>
+          <li>Fit on the same train IDs as TF-IDF</li>
+        </ul>
+
+        <h3>Where else this applies</h3>
+        <ul class="tight">
+          <li>Any tabular ML pipeline (pricing, churn, fraud)</li>
+          <li>Mixing sensors of different units in industrial IoT models</li>
+          <li>Linear models and k-NN (distance sensitive); tree models often need less scaling</li>
+        </ul>
+      </section>
+
+      <!-- 6 FUSION -->
+      <section id="fusion">
+        <h2>6. Multi-modal feature fusion (<code>sparse.hstack</code>)</h2>
+        <p class="muted">Phases 5–6 concept (core of this project).</p>
+
+        <h3>What it is</h3>
+        <p>
+          <strong>Feature fusion</strong> means combining different feature families into one model input.
+          Here: sparse text TF-IDF + dense/sparse tabular features → one wide matrix.
+        </p>
+
+        <h3>Why we need it</h3>
+        <p>
+          Titles capture wording/theme. Tabular fields capture budget, geography, category, duration.
+          Either alone is weaker than both together for funding prediction.
+        </p>
+
+        <h3>How it works</h3>
+        <span class="formula">X<sub>fused</sub> = [ X<sub>tfidf sparse</sub> | X<sub>tabular</sub> ]</span>
+        <p>
+          Horizontally stack columns. Row <em>i</em> in text must be the same campaign as row <em>i</em> in tabular
+          (same ID order / same split).
+        </p>
+        <pre>from scipy.sparse import hstack, csr_matrix
+
+X_train_fused = hstack([X_text_train, csr_matrix(X_tab_train)])
+X_test_fused  = hstack([X_text_test,  csr_matrix(X_tab_test)])</pre>
+
+        <h3>Types of fusion</h3>
+        <table>
+          <thead><tr><th>Type</th><th>Idea</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Early fusion</td><td>Concatenate features, one model</td><td>What we do (hstack + logistic regression)</td></tr>
+            <tr><td>Late fusion</td><td>Train separate models, blend predictions</td><td>Useful when modalities disagree</td></tr>
+            <tr><td>Intermediate / learned fusion</td><td>Neural nets merge embeddings</td><td>More flexible, less interpretable</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Why not simple numpy concatenate?</h3>
+        <p>
+          Text is sparse; tabular is dense. Naive dense concatenation explodes memory.
+          <code>scipy.sparse.hstack</code> keeps the result sparse-friendly.
+        </p>
+
+        <h3>Where else this applies</h3>
+        <ul class="tight">
+          <li>Lead scoring: CRM fields + email text</li>
+          <li>Insurance: claim forms (text) + policy numbers</li>
+          <li>Marketplaces: listing description + price/category</li>
+          <li>Healthcare: clinical notes + vital signs</li>
+          <li>Content moderation: post text + account metadata</li>
+        </ul>
+      </section>
+
+      <!-- 7 LOGISTIC -->
+      <section id="logistic">
+        <h2>7. Logistic regression (binary classification)</h2>
+        <p class="muted">Phase 7 model.</p>
+
+        <h3>What it is</h3>
+        <p>
+          A linear model for probabilities. It learns a weight per feature, combines them into a score,
+          then squeezes that score through a sigmoid into a probability between 0 and 1.
+        </p>
+
+        <h3>Why we need it</h3>
+        <ul class="tight">
+          <li>Matches our binary target (successful vs failed).</li>
+          <li>Works well with high-dimensional sparse TF-IDF.</li>
+          <li>Coefficients are readable — important for this project’s feature-weight analysis.</li>
+        </ul>
+
+        <h3>How it works</h3>
+        <span class="formula">z = w₀ + w₁x₁ + w₂x₂ + … + wₚxₚ</span>
+        <span class="formula">P(y=1 | x) = σ(z) = 1 / (1 + e<sup>−z</sup>)</span>
+        <p>
+          Training usually minimizes log-loss (cross-entropy): penalize confident wrong probabilities,
+          with an optional regularization term on weights.
+        </p>
+
+        <h3>Decision threshold</h3>
+        <p>
+          Default: predict class 1 if probability ≥ 0.5. You can move the threshold to trade precision vs recall
+          (important when false positives and false negatives have different business costs).
+        </p>
+
+        <h3>Where else this applies</h3>
+        <ul class="tight">
+          <li>Click-through prediction baselines</li>
+          <li>Medical risk scores</li>
+          <li>Fraud / spam flags</li>
+          <li>Any “yes/no” problem where you want calibrated probabilities and explainable weights</li>
+        </ul>
+      </section>
+
+      <!-- 8 REG -->
+      <section id="regularization">
+        <h2>8. Regularization: L1 (Lasso), L2 (Ridge), ElasticNet</h2>
+        <p class="muted">Critical for high-dimensional text + tabular fusion.</p>
+
+        <h3>What it is</h3>
+        <p>
+          Regularization adds a penalty on weight size while training. It stops the model from relying
+          too hard on noisy features — especially when you have thousands of TF-IDF columns.
+        </p>
+
+        <h3>Why we need it in this project</h3>
+        <p>
+          After fusion, text features outnumber tabular features (~2500 vs maybe dozens).
+          Without regularization, sparse title tokens can dominate and overfit rare words.
+          L2 keeps weights small; L1 can zero out weak tokens; ElasticNet mixes both.
+        </p>
+
+        <h3>How each type works</h3>
+        <table>
+          <thead><tr><th>Name</th><th>Penalty</th><th>Effect on weights</th><th>Good for</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>L2 / Ridge</strong></td>
+              <td>Σ w²</td>
+              <td>Shrinks weights smoothly, rarely to exact zero</td>
+              <td>Correlated features; stable sparse text models (our Phase 7 start)</td>
+            </tr>
+            <tr>
+              <td><strong>L1 / Lasso</strong></td>
+              <td>Σ |w|</td>
+              <td>Can set many weights exactly to 0 (feature selection)</td>
+              <td>Finding a small set of influential tokens</td>
+            </tr>
+            <tr>
+              <td><strong>ElasticNet</strong></td>
+              <td>mix of L1 + L2</td>
+              <td>Sparse + stable</td>
+              <td>When you want selection without Lasso instability</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Strength control (sklearn mental model)</h3>
+        <p>
+          In <code>LogisticRegression</code>, <code>C</code> is <em>inverse</em> regularization strength:
+        </p>
+        <ul class="tight">
+          <li><strong>Smaller C</strong> → stronger penalty → simpler model</li>
+          <li><strong>Larger C</strong> → weaker penalty → fits train data more aggressively</li>
+        </ul>
+        <pre># L2 (default idea)
+LogisticRegression(penalty="l2", C=1.0, solver="saga")
+
+# L1
+LogisticRegression(penalty="l1", C=0.5, solver="saga")
+
+# ElasticNet
+LogisticRegression(penalty="elasticnet", l1_ratio=0.5, C=1.0, solver="saga")</pre>
+
+        <h3>General intuition example</h3>
+        <p>
+          Imagine two title tokens that appear once and coincide with success by luck.
+          Without regularization, their weights can explode. With L2, they shrink.
+          With L1, they may vanish entirely if they are not consistently useful.
+        </p>
+
+        <h3>Where else this applies</h3>
+        <ul class="tight">
+          <li>Genomics (p ≫ n feature regimes)</li>
+          <li>Marketing mix models with many correlated channels</li>
+          <li>Any linear model on wide one-hot / TF-IDF spaces</li>
+        </ul>
+      </section>
+
+      <!-- 9 METRICS -->
+      <section id="metrics">
+        <h2>9. Precision, Recall, F1, and Precision–Recall curves</h2>
+        <p class="muted">Phase 8 evaluation. Needed because our classes are ~60/40, not perfectly balanced.</p>
+
+        <h3>Confusion matrix ingredients</h3>
+        <table>
+          <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>TP</td><td>Predicted successful, actually successful</td></tr>
+            <tr><td>FP</td><td>Predicted successful, actually failed</td></tr>
+            <tr><td>TN</td><td>Predicted failed, actually failed</td></tr>
+            <tr><td>FN</td><td>Predicted failed, actually successful</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Core metrics</h3>
+        <span class="formula">Precision = TP / (TP + FP) &nbsp;&nbsp; “Of campaigns we marked successful, how many truly were?”</span>
+        <span class="formula">Recall = TP / (TP + FN) &nbsp;&nbsp; “Of all true successes, how many did we catch?”</span>
+        <span class="formula">F1 = 2 · (Precision · Recall) / (Precision + Recall) &nbsp;&nbsp; harmonic balance</span>
+        <span class="formula">Accuracy = (TP + TN) / all &nbsp;&nbsp; easy to misuse with imbalance</span>
+
+        <h3>Why not only accuracy?</h3>
+        <p>
+          If 90% of rows are “failed,” predicting always-failed gets 90% accuracy and zero business value.
+          Precision/Recall/F1 force you to look at the positive class behavior.
+        </p>
+
+        <h3>Precision–Recall curve</h3>
+        <p>
+          Sweep the probability threshold from high → low. Plot Precision vs Recall at each threshold.
+          Useful when the positive class is rarer or when you care about ranking quality of “likely to fund” campaigns.
+          <strong>Average Precision (AP)</strong> summarizes the curve into one score.
+        </p>
+
+        <h3>Business reading (Kickstarter-like)</h3>
+        <ul class="tight">
+          <li>High precision: fewer false “will fund” calls (good if you allocate scarce outreach budget).</li>
+          <li>High recall: miss fewer true successes (good if missing a winner is costly).</li>
+        </ul>
+
+        <h3>Where else this applies</h3>
+        <ul class="tight">
+          <li>Fraud detection (recall often critical)</li>
+          <li>Cancer screening (tradeoffs are life-critical)</li>
+          <li>Search ranking quality</li>
+          <li>Lead scoring dashboards</li>
+        </ul>
+      </section>
+
+      <!-- 10 COEFFICIENTS -->
+      <section id="coefficients">
+        <h2>10. Feature coefficients &amp; interpretability</h2>
+        <p class="muted">Phases 7–8 deliverable: top positive/negative text tokens vs tabular weights.</p>
+
+        <h3>What it is</h3>
+        <p>
+          In logistic regression, each feature has a coefficient <code>w</code>.
+          Sign and magnitude tell you how that feature pushes the log-odds of success.
+        </p>
+
+        <h3>How to read them</h3>
+        <ul class="tight">
+          <li><strong>Positive coefficient:</strong> higher feature value → higher chance of success (all else equal)</li>
+          <li><strong>Negative coefficient:</strong> higher feature value → lower chance of success</li>
+          <li><strong>Near zero:</strong> weak/noisy contribution under current regularization</li>
+        </ul>
+        <div class="warn">
+          Coefficients are comparable more cleanly when inputs are scaled.
+          For one-hot flags, a coefficient is the effect of that category versus the dropped reference level.
+          Correlation ≠ causation — treat them as model explanations, not proven business laws.
+        </div>
+
+        <h3>In our project (planned analysis)</h3>
+        <ol>
+          <li>Train regularized logistic regression on fused matrix.</li>
+          <li>Split coefficients into text-token block vs tabular block.</li>
+          <li>Plot top 15 positive and top 15 negative text tokens.</li>
+          <li>Plot strongest tabular feature weights beside them.</li>
+        </ol>
+
+        <h3>Where else this applies</h3>
+        <ul class="tight">
+          <li>Credit decision explanations</li>
+          <li>Policy / compliance model audits</li>
+          <li>Marketing drivers (“which words correlate with conversion?”)</li>
+          <li>Healthcare risk factor summaries</li>
+        </ul>
+      </section>
+
+      <section id="checklist">
+        <h2>Quick revision checklist</h2>
+        <table>
+          <thead><tr><th>Can you explain…</th><th>In one sentence</th></tr></thead>
+          <tbody>
+            <tr><td>Why clean text?</td><td>So the model counts stable content tokens, not noise.</td></tr>
+            <tr><td>Why TF-IDF over raw counts?</td><td>It boosts distinctive words and dampens ubiquitous ones.</td></tr>
+            <tr><td>Why sparse matrices?</td><td>Most TF-IDF entries are zero; sparse storage is necessary at scale.</td></tr>
+            <tr><td>Why fit on train only?</td><td>To prevent test information from leaking into learning.</td></tr>
+            <tr><td>Why fuse modalities?</td><td>Text and tabular capture different signals about the same campaign.</td></tr>
+            <tr><td>Why L2 regularization?</td><td>To stop thousands of text features from overfitting and dominating.</td></tr>
+            <tr><td>Why Precision/Recall?</td><td>Accuracy hides mistakes on the class you actually care about.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <footer>
+        File: <code>docs/learning-guide.html</code> ·
+        Open locally in a browser ·
+        Update this page when later phases add new code patterns ·
+        Project notebooks: <code>01_eda</code>, <code>02_text_cleaning</code>, <code>03_tfidf</code>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
