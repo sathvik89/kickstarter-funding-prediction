@@ -45,3 +45,9 @@ Map:
 | `data/raw/` | Untouched source data |
 | `data/interim/` | Cleaned tables after EDA / text cleaning |
 | `data/processed/` | Matrices and train/test splits ready for modeling |
+
+## Interim outputs
+
+| File | From | Description |
+|------|------|-------------|
+| `data/interim/ks_binary_base.csv` | Phase 1 EDA | `successful`/`failed` only, leakage columns removed, with `target`, `duration_days`, and basic name stats |
