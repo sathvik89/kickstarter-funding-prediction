@@ -273,7 +273,7 @@
             <tr><td>TF-IDF</td><td>Phase 3 · <code>03_tfidf.ipynb</code></td><td>Done</td></tr>
             <tr><td>Sparse vs dense</td><td>Phase 5 · <code>05_sparse_dense_fusion_plan.ipynb</code></td><td>Done</td></tr>
             <tr><td>Encoding &amp; scaling</td><td>Phase 4 · <code>04_tabular_preprocess.ipynb</code></td><td>Done</td></tr>
-            <tr><td>Feature fusion (<code>hstack</code>)</td><td>Phase 6</td><td>Upcoming (plan locked)</td></tr>
+            <tr><td>Feature fusion (<code>hstack</code>)</td><td>Phase 6 · <code>06_feature_fusion.ipynb</code></td><td>Done</td></tr>
             <tr><td>Logistic regression</td><td>Phase 7</td><td>Upcoming</td></tr>
             <tr><td>L1 / L2 / ElasticNet</td><td>Phase 7–8</td><td>Upcoming</td></tr>
             <tr><td>Precision / Recall / F1 / PR</td><td>Phase 8</td><td>Upcoming</td></tr>
@@ -623,7 +623,7 @@ duration_scaled ≈ -0.10</pre>
       <!-- 6 FUSION -->
       <section id="fusion">
         <h2>6. Multi-modal feature fusion (<code>sparse.hstack</code>)</h2>
-        <p class="muted">Phases 5–6 concept (core of this project).</p>
+        <p class="muted">Phase 6 · implemented in <code>notebooks/06_feature_fusion.ipynb</code>.</p>
 
         <h3>What it is</h3>
         <p>
@@ -643,10 +643,16 @@ duration_scaled ≈ -0.10</pre>
           Horizontally stack columns. Row <em>i</em> in text must be the same campaign as row <em>i</em> in tabular
           (same ID order / same split).
         </p>
-        <pre>from scipy.sparse import hstack, csr_matrix
-
-X_train_fused = hstack([X_text_train, csr_matrix(X_tab_train)])
-X_test_fused  = hstack([X_text_test,  csr_matrix(X_tab_test)])</pre>
+        <h3>In our project</h3>
+        <p>
+          We use early fusion:
+        </p>
+        <pre>X_train_fused = sparse.hstack([X_text_train, X_tab_train], format="csr")
+# shape: [264728 × 2713]</pre>
+        <p>
+          Feature names are prefixed (<code>text__*</code>, <code>tab__*</code>) so Phase 7–8 can separate coefficients by modality.
+          Notes: <code>docs/fusion.md</code>
+        </p>
 
         <h3>Types of fusion</h3>
         <table>

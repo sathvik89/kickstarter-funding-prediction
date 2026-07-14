@@ -1,0 +1,20 @@
+{
+  "method": "scipy.sparse.hstack",
+  "order": [
+    "text",
+    "tabular"
+  ],
+  "n_train": 264728,
+  "n_test": 66183,
+  "n_features": 2713,
+  "n_text_features": 2500,
+  "n_tab_features": 213,
+  "train_density": 0.0031583802411612035,
+  "test_density": 0.003153961979416843,
+  "train_sparse_mb": 28.28,
+  "test_sparse_mb": 7.06,
+  "targets": [
+    "y_train.npy",
+    "y_test.npy"
+  ]
+}

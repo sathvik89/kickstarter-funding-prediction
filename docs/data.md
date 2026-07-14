@@ -61,3 +61,4 @@ Map:
 | `data/processed/split_ids.csv` | Phase 3 | Shared train/test IDs for later tabular alignment |
 | `data/processed/X_tab_*.npz` | Phase 4 tabular | Scaled numerics + one-hot categoricals, same row order as text |
 | `data/processed/fusion_plan.json` | Phase 5 | Locked `hstack` merge plan and expected fused shapes |
+| `data/processed/X_*_fused.npz` | Phase 6 fusion | Unified sparse matrices `[N × 2713]` (text + tabular) |
