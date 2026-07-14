@@ -67,6 +67,7 @@ python -m ipykernel install --user --name=ml-summer --display-name="ML Summer Pr
 - [Fusion plan (sparse vs dense)](docs/fusion-plan.md)
 - [Feature fusion notes](docs/fusion.md)
 - [Modeling notes (L2 logistic regression)](docs/modeling.md)
+- [Evaluation notes](docs/evaluation.md)
 - **[Concept learning guide (HTML)](docs/learning-guide.html)** — TF-IDF, fusion, regularization, metrics, and more
 
 ## Stack

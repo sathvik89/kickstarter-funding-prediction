@@ -1,0 +1,16 @@
+feature,coef,modality,label
+tab__num__usd_goal_real,-15.364574946067291,tabular,num__usd_goal_real
+tab__cat__category_Literary Spaces,1.669522559478358,tabular,cat__category_Literary Spaces
+tab__cat__category_Video,-1.6545504686720398,tabular,cat__category_Video
+tab__cat__category_Chiptune,1.5895397477234239,tabular,cat__category_Chiptune
+tab__cat__category_Hip-Hop,-1.4301287036615995,tabular,cat__category_Hip-Hop
+tab__cat__category_Mobile Games,-1.3214580852179518,tabular,cat__category_Mobile Games
+tab__cat__category_Tabletop Games,1.291386594153604,tabular,cat__category_Tabletop Games
+tab__cat__category_Apps,-1.2187659702165907,tabular,cat__category_Apps
+tab__cat__category_Photo,-1.2068597755157546,tabular,cat__category_Photo
+tab__cat__category_Web,-1.1300064149976758,tabular,cat__category_Web
+tab__cat__category_Camera Equipment,1.1263458407450326,tabular,cat__category_Camera Equipment
+tab__cat__category_Residencies,1.0904500212100154,tabular,cat__category_Residencies
+tab__cat__category_Food Trucks,-1.086054590432332,tabular,cat__category_Food Trucks
+tab__cat__category_Sound,1.0809951094368693,tabular,cat__category_Sound
+tab__cat__category_Typography,1.0193346466706392,tabular,cat__category_Typography

@@ -275,9 +275,9 @@
             <tr><td>Encoding &amp; scaling</td><td>Phase 4 · <code>04_tabular_preprocess.ipynb</code></td><td>Done</td></tr>
             <tr><td>Feature fusion (<code>hstack</code>)</td><td>Phase 6 · <code>06_feature_fusion.ipynb</code></td><td>Done</td></tr>
             <tr><td>Logistic regression</td><td>Phase 7 · <code>07_train_l2_logreg.ipynb</code></td><td>Done (L2 baseline)</td></tr>
-            <tr><td>L1 / L2 / ElasticNet</td><td>Phase 7–8</td><td>L2 done; sweeps upcoming</td></tr>
-            <tr><td>Precision / Recall / F1 / PR</td><td>Phase 8</td><td>Upcoming</td></tr>
-            <tr><td>Feature coefficients</td><td>Phase 7–8</td><td>Upcoming</td></tr>
+            <tr><td>L1 / L2 / ElasticNet</td><td>Phase 7–8 · <code>08_evaluation.ipynb</code></td><td>L2 C-sweep done</td></tr>
+            <tr><td>Precision / Recall / F1 / PR</td><td>Phase 8 · <code>08_evaluation.ipynb</code></td><td>Done</td></tr>
+            <tr><td>Feature coefficients</td><td>Phase 8 · <code>08_evaluation.ipynb</code></td><td>Done</td></tr>
           </tbody>
         </table>
       </section>
@@ -724,7 +724,7 @@ duration_scaled ≈ -0.10</pre>
       <!-- 8 REG -->
       <section id="regularization">
         <h2>8. Regularization: L1 (Lasso), L2 (Ridge), ElasticNet</h2>
-        <p class="muted">L2 baseline trained in Phase 7; strength sweeps in Phase 8.</p>
+        <p class="muted">L2 baseline in Phase 7; C-sweep comparison in Phase 8.</p>
 
         <h3>What it is</h3>
         <p>
@@ -799,7 +799,7 @@ LogisticRegression(penalty="elasticnet", l1_ratio=0.5, C=1.0, solver="saga")</pr
       <!-- 9 METRICS -->
       <section id="metrics">
         <h2>9. Precision, Recall, F1, and Precision–Recall curves</h2>
-        <p class="muted">Phase 8 evaluation. Needed because our classes are ~60/40, not perfectly balanced.</p>
+        <p class="muted">Phase 8 · implemented in <code>notebooks/08_evaluation.ipynb</code>.</p>
 
         <h3>Confusion matrix ingredients</h3>
         <table>
@@ -849,7 +849,7 @@ LogisticRegression(penalty="elasticnet", l1_ratio=0.5, C=1.0, solver="saga")</pr
       <!-- 10 COEFFICIENTS -->
       <section id="coefficients">
         <h2>10. Feature coefficients &amp; interpretability</h2>
-        <p class="muted">Phases 7–8 deliverable: top positive/negative text tokens vs tabular weights.</p>
+        <p class="muted">Phase 8 · top text/tabular coefficient plots in <code>notebooks/08_evaluation.ipynb</code>.</p>
 
         <h3>What it is</h3>
         <p>
@@ -869,13 +869,13 @@ LogisticRegression(penalty="elasticnet", l1_ratio=0.5, C=1.0, solver="saga")</pr
           Correlation ≠ causation — treat them as model explanations, not proven business laws.
         </div>
 
-        <h3>In our project (planned analysis)</h3>
-        <ol>
-          <li>Train regularized logistic regression on fused matrix.</li>
-          <li>Split coefficients into text-token block vs tabular block.</li>
-          <li>Plot top 15 positive and top 15 negative text tokens.</li>
-          <li>Plot strongest tabular feature weights beside them.</li>
-        </ol>
+        <h3>In our project</h3>
+        <p>
+          Notebook: <code>notebooks/08_evaluation.ipynb</code><br />
+          We plot top 15 positive and negative <code>text__*</code> tokens and the strongest
+          <code>tab__*</code> weights from the best test-F1 L2 model.
+          Notes: <code>docs/evaluation.md</code>
+        </p>
 
         <h3>Where else this applies</h3>
         <ul class="tight">

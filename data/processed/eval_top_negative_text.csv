@@ -1,0 +1,16 @@
+feature,coef,modality,label
+text__youtube,-2.2399052954126906,text,youtube
+text__childrens,-2.0787187567461554,text,childrens
+text__trump,-2.0172455648027627,text,trump
+text__contest,-1.8143632480531402,text,contest
+text__paranormal,-1.78012728108309,text,paranormal
+text__services,-1.7092403024310499,text,services
+text__sell,-1.6872175500872206,text,sell
+text__promotion,-1.679117761104527,text,promotion
+text__homemade,-1.5668529391830435,text,homemade
+text__manga,-1.5594950210284175,text,manga
+text__career,-1.53530799870696,text,career
+text__fried,-1.5249237367928201,text,fried
+text__prototype,-1.4711659015663556,text,prototype
+text__success,-1.4691690897969165,text,success
+text__reviews,-1.4453918253933855,text,reviews

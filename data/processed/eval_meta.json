@@ -1,0 +1,24 @@
+{
+  "C_grid": [
+    0.01,
+    0.1,
+    1.0,
+    10.0
+  ],
+  "best_C_by_test_f1": 10.0,
+  "best_test_metrics": {
+    "C": 10.0,
+    "accuracy": 0.6898,
+    "precision": 0.644,
+    "recall": 0.5189,
+    "f1": 0.5747,
+    "roc_auc": 0.7404,
+    "average_precision": 0.6473
+  },
+  "figures": [
+    "08_regularization_sweep_metrics.png",
+    "08_precision_recall_curves.png",
+    "08_top_text_coefficients.png",
+    "08_top_tabular_coefficients.png"
+  ]
+}

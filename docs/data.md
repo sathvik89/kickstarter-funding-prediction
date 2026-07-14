@@ -63,3 +63,4 @@ Map:
 | `data/processed/fusion_plan.json` | Phase 5 | Locked `hstack` merge plan and expected fused shapes |
 | `data/processed/X_*_fused.npz` | Phase 6 fusion | Unified sparse matrices `[N × 2713]` (text + tabular) |
 | `data/processed/model_logreg_l2.joblib` | Phase 7 model | L2 logistic regression on fused features |
+| `data/processed/eval_*.csv` / `model_logreg_l2_best.joblib` | Phase 8 evaluation | C-sweep metrics, top coefficients, best-F1 model |

@@ -1,0 +1,16 @@
+feature,coef,modality,label
+text__nudes,2.8580994872278658,text,nudes
+text__gbs,2.815814845238201,text,gbs
+text__residency,2.558737598009224,text,residency
+text__cthulhu,2.4650210269380777,text,cthulhu
+text__arctic,2.410754425652821,text,arctic
+text__smartest,2.3540903232818917,text,smartest
+text__sxsw,2.327863765817836,text,sxsw
+text__titanium,2.3243207472157406,text,titanium
+text__pens,2.29579746762834,text,pens
+text__degree,2.2530457335056164,text,degree
+text__lovecraft,2.1523708160500377,text,lovecraft
+text__smallest,2.1373161993510217,text,smallest
+text__miniatures,2.0380787060313708,text,miniatures
+text__thesis,2.0298754612164034,text,thesis
+text__reinvented,1.9800315251017298,text,reinvented
