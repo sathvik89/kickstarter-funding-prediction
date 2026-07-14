@@ -1,0 +1,11 @@
+{
+  "source": "ks_text_cleaned.csv",
+  "max_features": 2500,
+  "test_size": 0.2,
+  "random_state": 42,
+  "n_train": 264728,
+  "n_test": 66183,
+  "n_features": 2500,
+  "train_density": 0.0010274742377081381,
+  "test_density": 0.0010226795400631581
+}

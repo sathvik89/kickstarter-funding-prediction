@@ -62,6 +62,7 @@ python -m ipykernel install --user --name=ml-summer --display-name="ML Summer Pr
 - [Data notes](docs/data.md)
 - [EDA findings (what the figures say)](docs/eda-findings.md)
 - [Text cleaning notes](docs/text-cleaning.md)
+- [TF-IDF notes](docs/tfidf.md)
 
 ## Stack
 

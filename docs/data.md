@@ -52,3 +52,10 @@ Map:
 |------|------|-------------|
 | `data/interim/ks_binary_base.csv` | Phase 1 EDA | `successful`/`failed` only, leakage columns removed, with `target`, `duration_days`, and basic name stats |
 | `data/interim/ks_text_cleaned.csv` | Phase 2 text cleaning | Same base plus `name_clean` / `name_clean_tokens`; empty cleaned titles removed |
+
+## Processed outputs
+
+| File | From | Description |
+|------|------|-------------|
+| `data/processed/X_text_*.npz` | Phase 3 TF-IDF | Sparse text matrices (`max_features=2500`), fit on train only |
+| `data/processed/split_ids.csv` | Phase 3 | Shared train/test IDs for later tabular alignment |
