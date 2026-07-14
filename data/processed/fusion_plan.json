@@ -1,0 +1,35 @@
+{
+  "method": "scipy.sparse.hstack",
+  "train_blocks": [
+    "X_text_train.npz",
+    "X_tab_train.npz"
+  ],
+  "test_blocks": [
+    "X_text_test.npz",
+    "X_tab_test.npz"
+  ],
+  "output_format": "csr",
+  "expected_train_shape": [
+    264728,
+    2713
+  ],
+  "expected_test_shape": [
+    66183,
+    2713
+  ],
+  "feature_name_sources": [
+    "tfidf_feature_names.csv",
+    "tab_feature_names.csv"
+  ],
+  "row_alignment": "split_ids.csv order already validated in Phase 4",
+  "targets": [
+    "y_train.npy",
+    "y_test.npy"
+  ],
+  "estimated_train_sparse_mb": 28.28,
+  "do_not": [
+    "np.hstack on sparse matrices",
+    "toarray() on the TF-IDF block before merge",
+    "refit vectorizer/preprocessor after split"
+  ]
+}

@@ -64,6 +64,7 @@ python -m ipykernel install --user --name=ml-summer --display-name="ML Summer Pr
 - [Text cleaning notes](docs/text-cleaning.md)
 - [TF-IDF notes](docs/tfidf.md)
 - [Tabular preprocessing notes](docs/tabular.md)
+- [Fusion plan (sparse vs dense)](docs/fusion-plan.md)
 - **[Concept learning guide (HTML)](docs/learning-guide.html)** — TF-IDF, fusion, regularization, metrics, and more
 
 ## Stack

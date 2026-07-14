@@ -271,9 +271,9 @@
             <tr><td>Text cleaning &amp; stopwords</td><td>Phase 2 · <code>02_text_cleaning.ipynb</code></td><td>Done</td></tr>
             <tr><td>Train/test split &amp; leakage</td><td>Phase 1–3 · EDA + TF-IDF</td><td>Done</td></tr>
             <tr><td>TF-IDF</td><td>Phase 3 · <code>03_tfidf.ipynb</code></td><td>Done</td></tr>
-            <tr><td>Sparse vs dense</td><td>Phase 3–5</td><td>Introduced; deepen in Phase 5</td></tr>
+            <tr><td>Sparse vs dense</td><td>Phase 5 · <code>05_sparse_dense_fusion_plan.ipynb</code></td><td>Done</td></tr>
             <tr><td>Encoding &amp; scaling</td><td>Phase 4 · <code>04_tabular_preprocess.ipynb</code></td><td>Done</td></tr>
-            <tr><td>Feature fusion (<code>hstack</code>)</td><td>Phase 5–6</td><td>Upcoming</td></tr>
+            <tr><td>Feature fusion (<code>hstack</code>)</td><td>Phase 6</td><td>Upcoming (plan locked)</td></tr>
             <tr><td>Logistic regression</td><td>Phase 7</td><td>Upcoming</td></tr>
             <tr><td>L1 / L2 / ElasticNet</td><td>Phase 7–8</td><td>Upcoming</td></tr>
             <tr><td>Precision / Recall / F1 / PR</td><td>Phase 8</td><td>Upcoming</td></tr>
@@ -534,9 +534,10 @@ Sparse row: store only (index=2 → 0.41), (index=6 → 0.22)</pre>
 
         <h3>In our project</h3>
         <p>
-          Text features are sparse (<code>.npz</code> files). Tabular features will be denser.
-          Direct <code>np.hstack</code> on mixed types is the wrong tool; we will use
-          <code>scipy.sparse.hstack</code> (Phase 5–6).
+          Notebook: <code>notebooks/05_sparse_dense_fusion_plan.ipynb</code><br />
+          Text train CSR is only a few MB, while a dense float32 copy would be ~2.6&nbsp;GB.
+          Tabular is denser but still best kept sparse-compatible for merge.
+          Plan file: <code>data/processed/fusion_plan.json</code> · notes: <code>docs/fusion-plan.md</code>
         </p>
 
         <h3>Where else this applies</h3>
