@@ -61,6 +61,7 @@ python -m ipykernel install --user --name=ml-summer --display-name="ML Summer Pr
 - [Phases & commits](docs/phases.md)
 - [Data notes](docs/data.md)
 - [EDA findings (what the figures say)](docs/eda-findings.md)
+- [Text cleaning notes](docs/text-cleaning.md)
 
 ## Stack
 

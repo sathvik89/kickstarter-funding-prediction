@@ -51,3 +51,4 @@ Map:
 | File | From | Description |
 |------|------|-------------|
 | `data/interim/ks_binary_base.csv` | Phase 1 EDA | `successful`/`failed` only, leakage columns removed, with `target`, `duration_days`, and basic name stats |
+| `data/interim/ks_text_cleaned.csv` | Phase 2 text cleaning | Same base plus `name_clean` / `name_clean_tokens`; empty cleaned titles removed |
