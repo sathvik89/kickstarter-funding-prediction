@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kickstarter Funding Predictor — Leadership Report</title>
+<style>
+  :root{
+    --ground:#FBFCFB;
+    --surface:#F2F5F3;
+    --surface-2:#E9EEEB;
+    --ink:#141B18;
+    --muted:#5B6A64;
+    --faint:#85958E;
+    --border:#DBE2DE;
+    --accent:#0E7C66;
+    --accent-soft:#E2F0EB;
+    --accent-ink:#0A5A4A;
+    --good:#2E7D46;
+    --warn:#B4720E;
+    --shadow:0 1px 2px rgba(20,27,24,.04),0 8px 24px rgba(20,27,24,.05);
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#0F1512;--surface:#161E1A;--surface-2:#1D2723;
+      --ink:#EAF0EC;--muted:#9FB0A8;--faint:#71827A;--border:#26322D;
+      --accent:#4FCBAE;--accent-soft:#153029;--accent-ink:#8FE6D0;
+      --good:#5FBE7C;--warn:#E0A94A;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{
+    --ground:#FBFCFB;--surface:#F2F5F3;--surface-2:#E9EEEB;--ink:#141B18;--muted:#5B6A64;--faint:#85958E;--border:#DBE2DE;--accent:#0E7C66;--accent-soft:#E2F0EB;--accent-ink:#0A5A4A;--good:#2E7D46;--warn:#B4720E;--shadow:0 1px 2px rgba(20,27,24,.04),0 8px 24px rgba(20,27,24,.05);
+  }
+  :root[data-theme="dark"]{
+    --ground:#0F1512;--surface:#161E1A;--surface-2:#1D2723;--ink:#EAF0EC;--muted:#9FB0A8;--faint:#71827A;--border:#26322D;--accent:#4FCBAE;--accent-soft:#153029;--accent-ink:#8FE6D0;--good:#5FBE7C;--warn:#E0A94A;--shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{
+    margin:0;background:var(--ground);color:var(--ink);
+    font-family:var(--sans);font-size:16px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  }
+
+  /* ---- top nav ---- */
+  header.topbar{
+    position:sticky;top:0;z-index:20;
+    backdrop-filter:saturate(1.2) blur(8px);
+    background:color-mix(in srgb,var(--ground) 86%,transparent);
+    border-bottom:1px solid var(--border);
+  }
+  .topbar-inner{
+    max-width:960px;margin:0 auto;padding:12px 24px;
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  }
+  .brand{font-family:var(--serif);font-weight:600;font-size:15px;letter-spacing:.01em;margin-right:auto}
+  .brand .dot{color:var(--accent)}
+  nav.sections{display:flex;gap:4px;flex-wrap:wrap}
+  nav.sections a{
+    font-size:12.5px;color:var(--muted);text-decoration:none;
+    padding:5px 10px;border-radius:6px;letter-spacing:.02em;
+  }
+  nav.sections a:hover{color:var(--ink);background:var(--surface)}
+  nav.sections a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  main{max-width:960px;margin:0 auto;padding:0 24px}
+
+  /* ---- hero ---- */
+  .hero{padding:72px 0 48px;border-bottom:1px solid var(--border)}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent);margin:0 0 18px;
+  }
+  .hero h1{
+    font-family:var(--serif);font-weight:600;line-height:1.08;
+    font-size:clamp(2.2rem,5.2vw,3.4rem);margin:0 0 18px;text-wrap:balance;letter-spacing:-.01em;
+  }
+  .hero .lede{font-size:clamp(1.05rem,2.2vw,1.2rem);color:var(--muted);max-width:60ch;margin:0}
+  .meta-row{
+    display:flex;gap:28px;flex-wrap:wrap;margin-top:34px;
+    padding-top:26px;border-top:1px solid var(--border);
+  }
+  .meta-row .m{display:flex;flex-direction:column;gap:2px}
+  .meta-row .m .k{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+  .meta-row .m .v{font-size:15px;color:var(--ink);font-weight:500}
+
+  /* ---- sections ---- */
+  section.doc{padding:56px 0;border-bottom:1px solid var(--border)}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:30px}
+  .sec-num{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+  .sec-head h2{
+    font-family:var(--serif);font-weight:600;font-size:clamp(1.5rem,3.4vw,2.05rem);
+    margin:0;letter-spacing:-.01em;text-wrap:balance;
+  }
+  h3{font-family:var(--sans);font-size:.82rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:34px 0 14px;font-weight:600}
+  p{margin:0 0 16px;max-width:66ch}
+  a.link{color:var(--accent-ink);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--accent) 40%,transparent)}
+  a.link:hover{border-bottom-color:var(--accent)}
+  strong{font-weight:650;color:var(--ink)}
+
+  /* ---- tiles ---- */
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:8px 0 6px}
+  .tile{
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;
+    padding:18px 18px 16px;box-shadow:var(--shadow);
+  }
+  .tile .num{font-family:var(--mono);font-size:1.9rem;font-weight:600;color:var(--ink);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .tile .lbl{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.35}
+  .tile .sub{font-size:11px;color:var(--faint);margin-top:3px;font-family:var(--mono)}
+
+  /* ---- checklist ---- */
+  ul.check{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+  ul.check li{
+    display:flex;gap:11px;align-items:flex-start;
+    background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;
+  }
+  ul.check li .mark{color:var(--good);flex:none;font-weight:700;margin-top:1px}
+  ul.check li .t{font-size:14.5px}
+  ul.check li .t small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+
+  /* ---- pipeline ---- */
+  .pipe{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:6px 0 4px}
+  .pipe .step{
+    flex:1 1 120px;background:var(--surface);border:1px solid var(--border);
+    border-radius:10px;padding:12px 12px 11px;position:relative;min-width:120px;
+  }
+  .pipe .step .pn{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.06em}
+  .pipe .step .pt{font-size:13.5px;font-weight:600;margin-top:3px}
+  .pipe .step .pd{font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.3}
+  .pipe .arrow{align-self:center;color:var(--faint);font-size:15px;flex:none}
+  @media (max-width:620px){.pipe .arrow{display:none}}
+
+  /* ---- tables ---- */
+  .tablewrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow)}
+  table{border-collapse:collapse;width:100%;font-size:14px;min-width:420px}
+  caption{caption-side:bottom;text-align:left;color:var(--faint);font-size:12px;padding:10px 14px}
+  th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--border)}
+  thead th{background:var(--surface-2);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+  tbody tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+  tr.best td{background:var(--accent-soft);font-weight:600}
+  tr.best td:first-child{color:var(--accent-ink)}
+
+  /* ---- two-col ---- */
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+  @media (max-width:720px){.two{grid-template-columns:1fr}}
+
+  /* ---- challenge cards ---- */
+  .cards{display:grid;gap:12px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;border-left:3px solid var(--accent)}
+  .card .ch{font-weight:600;font-size:14.5px;margin-bottom:5px}
+  .card .sol{font-size:13.5px;color:var(--muted)}
+  .card .sol b{color:var(--accent-ink);font-weight:600}
+
+  /* ---- code ---- */
+  pre{
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;
+    padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:12.8px;line-height:1.65;margin:0 0 14px;
+  }
+  pre .cm{color:var(--faint)}
+  pre .kw{color:var(--accent-ink)}
+  code.inl{font-family:var(--mono);font-size:.88em;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:1px 6px}
+
+  .callout{background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 30%,var(--border));border-radius:12px;padding:16px 18px;font-size:14px}
+  .callout .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:6px}
+
+  .repo{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-top:6px}
+  .repo .glyph{font-family:var(--mono);font-weight:700;color:var(--accent);font-size:18px}
+  .repo a{font-family:var(--mono);font-size:14px;color:var(--accent-ink);text-decoration:none;word-break:break-all}
+  .repo a:hover{text-decoration:underline}
+
+  footer{padding:40px 0 60px;color:var(--faint);font-size:12.5px;text-align:center}
+  footer .brand{font-family:var(--serif);color:var(--muted)}
+
+  /* theme toggle */
+  .toggle{
+    border:1px solid var(--border);background:var(--surface);color:var(--muted);
+    border-radius:7px;padding:5px 10px;font-size:12px;cursor:pointer;font-family:var(--mono);letter-spacing:.03em;
+  }
+  .toggle:hover{color:var(--ink)}
+  .toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">Kickstarter Funding Predictor<span class="dot">.</span></span>
+    <nav class="sections" aria-label="Report sections">
+      <a href="#overview">Overview</a>
+      <a href="#progress">Work Completed</a>
+      <a href="#contrib">My Role</a>
+      <a href="#challenges">Challenges</a>
+      <a href="#future">Code &amp; Future</a>
+    </nav>
+    <button class="toggle" id="themeBtn" aria-label="Toggle color theme">Theme</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <p class="eyebrow">ML Summer Project · Leadership Report</p>
+    <h1>Predicting whether a Kickstarter campaign gets funded</h1>
+    <p class="lede">A multi-modal machine-learning pipeline that fuses a campaign's title text with its structured metadata to score, at launch time, whether it will succeed — built end to end and led across a four-member team.</p>
+    <div class="meta-row">
+      <div class="m"><span class="k">Prepared by</span><span class="v">Sathvik — Project Leader</span></div>
+      <div class="m"><span class="k">Team</span><span class="v">4 members</span></div>
+      <div class="m"><span class="k">Date</span><span class="v">17 July 2026</span></div>
+      <div class="m"><span class="k">Status</span><span class="v">Baseline complete</span></div>
+    </div>
+  </div>
+
+  <!-- 1 OVERVIEW -->
+  <section class="doc" id="overview">
+    <div class="sec-head"><span class="sec-num">01</span><h2>Project Overview</h2></div>
+
+    <h3>Problem statement</h3>
+    <p>Most Kickstarter campaigns fail. The signals available <em>before</em> launch — the wording of the title, the funding goal, the category, the country, and the campaign duration — are mixed in type: some are free text, others numeric and categorical. The challenge is to combine these unlike inputs into a single model that estimates a campaign's chance of being funded, using only information known at launch.</p>
+
+    <h3>Objective</h3>
+    <p>Build a leakage-safe, reproducible pipeline that treats this as a <strong>binary classification</strong> problem (<code class="inl">successful</code> vs <code class="inl">failed</code>), fuses text and tabular features into one matrix, trains a baseline classifier, and evaluates it honestly against a majority-class baseline. The goal for the team is as much about <em>understanding</em> each stage as shipping it — every member implements the full pipeline in their own repository.</p>
+
+    <h3>The dataset</h3>
+    <div class="tiles">
+      <div class="tile"><div class="num">331,672</div><div class="lbl">campaigns modeled</div><div class="sub">after filtering to success/fail</div></div>
+      <div class="tile"><div class="num">264,728</div><div class="lbl">training rows</div><div class="sub">80% stratified split</div></div>
+      <div class="tile"><div class="num">66,183</div><div class="lbl">test rows</div><div class="sub">20% held out</div></div>
+      <div class="tile"><div class="num">2,713</div><div class="lbl">fused features</div><div class="sub">2,500 text + 213 tabular</div></div>
+    </div>
+
+    <h3>Technologies used</h3>
+    <p>Python 3.13 · pandas · NumPy · <strong>scikit-learn</strong> (TF-IDF, ColumnTransformer, LogisticRegression) · <strong>SciPy sparse</strong> (feature fusion) · matplotlib &amp; seaborn (visualization) · joblib (model artifacts) · Jupyter notebooks · Git / GitHub.</p>
+  </section>
+
+  <!-- 2 WORK COMPLETED -->
+  <section class="doc" id="progress">
+    <div class="sec-head"><span class="sec-num">02</span><h2>Work Completed</h2></div>
+    <p>The project is organized as a sequence of phase-based notebooks, each producing a versioned artifact the next stage consumes. Everything below is done and reproducible.</p>
+
+    <ul class="check">
+      <li><span class="mark">✓</span><span class="t">Dataset collected<small>Kaggle Kickstarter 2018 · ~379k rows</small></span></li>
+      <li><span class="mark">✓</span><span class="t">EDA &amp; target defined<small>binary label, leakage audit</small></span></li>
+      <li><span class="mark">✓</span><span class="t">Text preprocessing<small>clean, tokenize, stopword removal</small></span></li>
+      <li><span class="mark">✓</span><span class="t">TF-IDF generated<small>2,500 features, fit on train only</small></span></li>
+      <li><span class="mark">✓</span><span class="t">Tabular preprocessing<small>scaling + one-hot encoding</small></span></li>
+      <li><span class="mark">✓</span><span class="t">Feature fusion<small>sparse hstack into one matrix</small></span></li>
+      <li><span class="mark">✓</span><span class="t">Model trained<small>L2 logistic regression</small></span></li>
+      <li><span class="mark">✓</span><span class="t">Evaluation complete<small>C sweep, PR curves, coefficients</small></span></li>
+    </ul>
+
+    <h3>Pipeline at a glance</h3>
+    <div class="pipe">
+      <div class="step"><div class="pn">01</div><div class="pt">EDA</div><div class="pd">define target, audit leakage</div></div>
+      <span class="arrow">→</span>
+      <div class="step"><div class="pn">02–03</div><div class="pt">Text → TF-IDF</div><div class="pd">clean titles, vectorize</div></div>
+      <span class="arrow">→</span>
+      <div class="step"><div class="pn">04</div><div class="pt">Tabular</div><div class="pd">scale + one-hot</div></div>
+      <span class="arrow">→</span>
+      <div class="step"><div class="pn">05–06</div><div class="pt">Fusion</div><div class="pd">sparse hstack</div></div>
+      <span class="arrow">→</span>
+      <div class="step"><div class="pn">07–08</div><div class="pt">Train + Eval</div><div class="pd">logreg, metrics</div></div>
+    </div>
+
+    <h3>Headline results (test set)</h3>
+    <div class="tablewrap">
+      <table>
+        <caption>Regularization sweep on the fused matrix. Best model selected by test F1 (C = 10.0). Majority-class baseline accuracy = 0.5961.</caption>
+        <thead>
+          <tr><th>C</th><th class="num">Accuracy</th><th class="num">Precision</th><th class="num">Recall</th><th class="num">F1</th><th class="num">ROC-AUC</th><th class="num">Avg. Precision</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>0.01</td><td class="num">0.6769</td><td class="num">0.6494</td><td class="num">0.4349</td><td class="num">0.5209</td><td class="num">0.7195</td><td class="num">0.6245</td></tr>
+          <tr><td>0.1</td><td class="num">0.6893</td><td class="num">0.6523</td><td class="num">0.4943</td><td class="num">0.5624</td><td class="num">0.7384</td><td class="num">0.6448</td></tr>
+          <tr><td>1.0</td><td class="num">0.6898</td><td class="num">0.6454</td><td class="num">0.5149</td><td class="num">0.5728</td><td class="num">0.7407</td><td class="num">0.6476</td></tr>
+          <tr class="best"><td>10.0 · best</td><td class="num">0.6898</td><td class="num">0.6440</td><td class="num">0.5189</td><td class="num">0.5747</td><td class="num">0.7404</td><td class="num">0.6473</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout" style="margin-top:16px">
+      <div class="lbl">What the numbers say</div>
+      Fusion beats either modality alone — text-only F1 ≈ 0.46, tabular-only ≈ 0.53, <strong>fused ≈ 0.57</strong>. At ~0.69 accuracy the model is ~9 points above the majority baseline. This is a genuinely hard problem, and lifting accuracy further is the current focus (see Section 05).
+    </div>
+  </section>
+
+  <!-- 3 MY CONTRIBUTIONS -->
+  <section class="doc" id="contrib">
+    <div class="sec-head"><span class="sec-num">03</span><h2>My Contributions</h2></div>
+
+    <div class="two">
+      <div>
+        <h3>Technical</h3>
+        <p>I implemented the <strong>full pipeline end to end</strong> in my own repository from raw data to evaluated model:</p>
+        <ul class="check" style="grid-template-columns:1fr">
+          <li><span class="mark">✓</span><span class="t">Data preprocessing<small>cleaning, target definition, leakage control</small></span></li>
+          <li><span class="mark">✓</span><span class="t">TF-IDF text features<small>vectorized campaign titles, fit on train only</small></span></li>
+          <li><span class="mark">✓</span><span class="t">Feature fusion pipeline<small>merged sparse text + tabular matrices</small></span></li>
+          <li><span class="mark">✓</span><span class="t">Model training<small>L2 logistic regression baseline</small></span></li>
+          <li><span class="mark">✓</span><span class="t">Evaluation<small>C sweep, PR curves, coefficient analysis</small></span></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Leadership</h3>
+        <p>I set up the team's learning-first working model: each member <strong>owns one topic</strong>, studies it deeply, and explains it to the group so everyone understands the whole pipeline before implementing it independently.</p>
+        <ul class="check" style="grid-template-columns:1fr">
+          <li><span class="mark">✦</span><span class="t">Framed the course &amp; selected the project<small>through open team discussion</small></span></li>
+          <li><span class="mark">✦</span><span class="t">Divided work by topic ownership<small>one concept per person to teach the team</small></span></li>
+          <li><span class="mark">✦</span><span class="t">Planned milestones<small>phase-by-phase, kept scope light &amp; achievable</small></span></li>
+          <li><span class="mark">✦</span><span class="t">Coordinated discussions<small>kept a shared understanding across repos</small></span></li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>How the team divided the learning</h3>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Owner</th><th>Topic taught to the team</th></tr></thead>
+        <tbody>
+          <tr><td>Sathvik <em>(leader)</em></td><td>Preprocessing &amp; feature fusion · overall coordination</td></tr>
+          <tr><td>Aarsh Bhatnagar</td><td>Cleaning Text,TF-IDF text vectorization</td></tr>
+          <tr><td>Sadhvik</td><td>Embeddings (studied as a concept for future text features),Scaling Techniques and One hot encoding</td></tr>
+          <tr><td>Kumar Sanu</td><td>Models - training &amp; evaluation , Error Analysis</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:16px">Each member then implemented the end-to-end project in their <strong>own repository</strong>, so the whole team gained hands-on depth rather than splitting a single codebase into isolated slices.</p>
+  </section>
+
+  <!-- 4 CHALLENGES -->
+  <section class="doc" id="challenges">
+    <div class="sec-head"><span class="sec-num">04</span><h2>Challenges &amp; Leadership</h2></div>
+
+    <h3>Technical challenges</h3>
+    <div class="cards">
+      <div class="card">
+        <div class="ch">Interpreting high-scoring TF-IDF tokens</div>
+        <div class="sol">After vectorizing, the top-weighted words weren't obviously related to funding success. <b>Resolved by</b> ranking coefficients by modality and reading them alongside the tabular signals, which showed text is a weak-but-real signal on its own.</div>
+      </div>
+      <div class="card">
+        <div class="ch">Feature dimensionality</div>
+        <div class="sol">TF-IDF plus one-hot encoding pushed the feature space into the thousands. <b>Resolved by</b> capping TF-IDF at 2,500 features (<code class="inl">min_df=2</code>) and keeping everything sparse instead of dense.</div>
+      </div>
+      <div class="card">
+        <div class="ch">Merging text and tabular matrices</div>
+        <div class="sol">Combining a sparse text matrix with a tabular matrix via a plain horizontal stack was confusing and error-prone. <b>Resolved by</b> using <code class="inl">scipy.sparse.hstack</code> with a shared split-id file to guarantee row alignment.</div>
+      </div>
+      <div class="card">
+        <div class="ch">Model accuracy ceiling <span style="color:var(--warn)">· open</span></div>
+        <div class="sol">The baseline sits around <b>0.69 accuracy / 0.57 F1</b> — real but limited. This is the active problem: improving the metrics with faculty guidance is the immediate next priority.</div>
+      </div>
+    </div>
+
+    <h3>Leadership challenges</h3>
+    <div class="cards">
+      <div class="card">
+        <div class="ch">Keeping people on track through busy schedules</div>
+        <div class="sol">Members were juggling hackathons and internships. <b>Resolved by</b> keeping each person's scope small, clear, and self-contained so the project never became a burden on top of their other commitments.</div>
+      </div>
+      <div class="card">
+        <div class="ch">Maintaining a shared pace</div>
+        <div class="sol">With everyone working in separate repos it's easy to drift apart. <b>Resolved by</b> the teach-back model — regular discussions where each owner explains their topic keep the whole team aligned on the same stage.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 CODE + FUTURE -->
+  <section class="doc" id="future">
+    <div class="sec-head"><span class="sec-num">05</span><h2>Code &amp; Future Plan</h2></div>
+
+    <h3>Key code — the three moves that define the pipeline</h3>
+    <pre><span class="cm"># 1 · Text → TF-IDF (fit on train only to prevent leakage)</span>
+vec = <span class="kw">TfidfVectorizer</span>(max_features=2500, ngram_range=(1,1), min_df=2)
+X_text_train = vec.fit_transform(train["name_clean"])
+X_text_test  = vec.transform(test["name_clean"])</pre>
+    <pre><span class="cm"># 2 · Fuse sparse text + tabular into one matrix (row-aligned)</span>
+X_train_fused = <span class="kw">hstack</span>([X_text_train, X_tab_train], format="csr")
+X_test_fused  = <span class="kw">hstack</span>([X_text_test,  X_tab_test],  format="csr")</pre>
+    <pre><span class="cm"># 3 · Train the L2 logistic-regression baseline</span>
+clf = <span class="kw">LogisticRegression</span>(penalty="l2", C=1.0,
+                         solver="liblinear", random_state=42)
+clf.fit(X_train_fused, y_train)</pre>
+
+    <div class="repo">
+      <span class="glyph">&lt;/&gt;</span>
+      <div>
+        <div style="font-size:12px;color:var(--faint);font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase">GitHub repository</div>
+        <a href="https://github.com/sathvik89/kickstarter-funding-prediction">github.com/sathvik89/kickstarter-funding-prediction</a>
+      </div>
+    </div>
+
+    <div class="two" style="margin-top:34px">
+      <div>
+        <h3>Current status</h3>
+        <p>The <strong>baseline project is complete</strong> end to end — every phase, from data collection through evaluation, runs and reproduces. All notebooks now converge on a single open goal: <strong>raising accuracy and the other metrics</strong>, with faculty guidance, before refactoring the notebook logic into a clean <code class="inl">src/</code> package.</p>
+      </div>
+      <div>
+        <h3>Next milestones</h3>
+        <ul class="check" style="grid-template-columns:1fr">
+          <li><span class="mark">→</span><span class="t">Improve accuracy &amp; metrics<small>faculty-guided; try new models &amp; techniques</small></span></li>
+          <li><span class="mark">→</span><span class="t">Review teammates' code &amp; repos<small>track progress, share fixes</small></span></li>
+          <li><span class="mark">→</span><span class="t">Refactor into <code class="inl">src/</code><small>move logic out of notebooks</small></span></li>
+          <li><span class="mark">→</span><span class="t">Keep the team in sync<small>maintain a shared pace</small></span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="brand">Kickstarter Funding Predictor</span> · Leadership Report · Prepared by Sathvik · 17 July 2026
+  </footer>
+
+</main>
+
+<script>
+  (function(){
+    var btn=document.getElementById("themeBtn");
+    var root=document.documentElement;
+    btn.addEventListener("click",function(){
+      var cur=root.getAttribute("data-theme");
+      if(!cur){cur=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";}
+      root.setAttribute("data-theme",cur==="dark"?"light":"dark");
+    });
+  })();
+</script>
+
+</body>
+</html>
