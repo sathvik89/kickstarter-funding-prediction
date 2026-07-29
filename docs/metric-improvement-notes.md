@@ -1,5 +1,21 @@
 # Metric improvement thinking (roughbook)
 
+> **Status: superseded by Phase 9.** Everything below was written before the
+> experiments were promoted. The backlog items marked "medium" were measured and
+> either shipped or rejected on evidence — see
+> [`phase9-improvements.md`](phase9-improvements.md) for the outcome:
+>
+> - `log1p` on goal → **shipped**, largest single win (+0.009 F1)
+> - Richer tabular features (launch date, title length) → **shipped** (+0.011 F1 combined)
+> - Tabular boosting as a ceiling check → **shipped**, best model at 0.707 accuracy
+> - Threshold tuning → **shipped**, now selected on validation rather than test
+> - ElasticNet / L1 → **rejected**, a wash
+> - TF-IDF bigrams / larger vocab → **rejected**, the dataset has no text to spare
+> - "Richer tabular interactions" → **rejected on measurement**; six hand-crafted
+>   variants recover ~15% of the linear/tree gap, so this line of work is closed
+>
+> This file is kept as the record of the reasoning that pointed at the right places.
+
 This is analysis only. Main Phase 1–8 code stays unchanged.
 
 Experiment notebook: `notebooks/roughbook_metric_improvements.ipynb`  

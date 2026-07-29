@@ -13,8 +13,12 @@ Work phase by phase. Validate in notebooks before promoting code to `src/`.
 | 6 | Feature fusion | Unified `X_fused` via `hstack` |
 | 7 | Baseline model | L2 logistic regression on fused features |
 | 8 | Evaluation | Metrics, PR curve, coefficient plots |
-| 9 | Refactor | `text_cleaner.py`, `fusion_pipeline.py`, `train.py` |
-| 10 | Final package | Extra regularization sweeps, report assets |
+| 9 | Refactor + improvements | `src/` modules, engineered features, validation split, boosting ceiling check |
+| 10 | Final package | Report assets, slides, demo |
+
+Phases 1–8 are frozen: they are the record of how each step was validated. Phase 9
+promoted that logic into [`src/`](../src) and added the feature and methodology work
+written up in [`phase9-improvements.md`](phase9-improvements.md).
 
 ## Suggested commit messages
 
@@ -31,3 +35,11 @@ Use these after each phase (edit lightly if needed):
 - **Phase 8:** `Evaluate model performance and plot feature coefficients`
 - **Phase 9:** `Refactor validated notebook logic into source modules`
 - **Phase 10:** `Tighten evaluation sweeps and package final project assets`
+
+## Reproducing Phase 9
+
+```bash
+python -m src.train       # fits, evaluates, writes data/processed/v2/ + 09_*.png figures
+python -m src.ablations   # feature + interaction ablation tables
+python -m src.report      # redraws figures from saved artifacts, no refitting
+```

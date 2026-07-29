@@ -9,6 +9,22 @@ Predict a **binary funding outcome** (`successful` vs `failed`) from:
 - **Text:** campaign `name`
 - **Tabular:** pre-campaign metadata (goal, category, country, duration, etc.)
 
+## Results
+
+Test set, no leakage columns, nothing selected on test. Majority-class accuracy is 0.596.
+
+| | Phase 8 baseline | Phase 9 (L2 logreg) | Phase 9 (boosting) |
+|---|---|---|---|
+| Accuracy | 0.690 | 0.696 | **0.707** |
+| F1 | 0.575 | 0.591 | **0.613** |
+| ROC-AUC | 0.740 | 0.754 | **0.772** |
+| Avg precision | 0.647 | 0.660 | **0.680** |
+
+For context, the best leakage-free published benchmark using launch-time-only features is
+**69.8%** ([Springer 2019](https://link.springer.com/chapter/10.1007/978-3-030-29516-5_39)).
+Higher figures in the wild (86–94%) generally include `backers` or `pledged` — the outcome
+itself. See [Phase 9 notes](docs/phase9-improvements.md) for the full comparison.
+
 ## Dataset
 
 - **Source:** Kaggle Kickstarter Projects (2018)
@@ -69,6 +85,7 @@ python -m ipykernel install --user --name=ml-summer --display-name="ML Summer Pr
 - [Modeling notes (L2 logistic regression)](docs/modeling.md)
 - [Evaluation notes](docs/evaluation.md)
 - [Metric improvement thinking (roughbook)](docs/metric-improvement-notes.md)
+- **[Phase 9: features, honest validation, boosting ceiling check](docs/phase9-improvements.md)**
 - **[Concept learning guide (HTML)](docs/learning-guide.html)** — TF-IDF, fusion, regularization, metrics, and more
 
 ## Stack
