@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kickstarter Funding Predictor — live model &amp; results</title>
+<meta name="description" content="A leakage-free multi-modal model that predicts Kickstarter funding success at launch time. 70.7% test accuracy, with a live in-browser predictor." />
+<style>
+  :root{
+    --ground:#FBFCFB;
+    --surface:#F2F5F3;
+    --surface-2:#E9EEEB;
+    --ink:#141B18;
+    --muted:#5B6A64;
+    --faint:#85958E;
+    --border:#DBE2DE;
+    --accent:#0E7C66;
+    --accent-soft:#E2F0EB;
+    --accent-ink:#0A5A4A;
+    --good:#2E7D46;
+    --bad:#B3402F;
+    --warn:#B4720E;
+    --shadow:0 1px 2px rgba(20,27,24,.04),0 8px 24px rgba(20,27,24,.05);
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#0F1512;--surface:#161E1A;--surface-2:#1D2723;
+      --ink:#EAF0EC;--muted:#9FB0A8;--faint:#71827A;--border:#26322D;
+      --accent:#4FCBAE;--accent-soft:#153029;--accent-ink:#8FE6D0;
+      --good:#5FBE7C;--bad:#E88770;--warn:#E0A94A;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{
+    --ground:#FBFCFB;--surface:#F2F5F3;--surface-2:#E9EEEB;--ink:#141B18;--muted:#5B6A64;--faint:#85958E;--border:#DBE2DE;--accent:#0E7C66;--accent-soft:#E2F0EB;--accent-ink:#0A5A4A;--good:#2E7D46;--bad:#B3402F;--warn:#B4720E;--shadow:0 1px 2px rgba(20,27,24,.04),0 8px 24px rgba(20,27,24,.05);
+  }
+  :root[data-theme="dark"]{
+    --ground:#0F1512;--surface:#161E1A;--surface-2:#1D2723;--ink:#EAF0EC;--muted:#9FB0A8;--faint:#71827A;--border:#26322D;--accent:#4FCBAE;--accent-soft:#153029;--accent-ink:#8FE6D0;--good:#5FBE7C;--bad:#E88770;--warn:#E0A94A;--shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{
+    margin:0;background:var(--ground);color:var(--ink);
+    font-family:var(--sans);font-size:16px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  }
+
+  header.topbar{
+    position:sticky;top:0;z-index:20;
+    backdrop-filter:saturate(1.2) blur(8px);
+    background:color-mix(in srgb,var(--ground) 86%,transparent);
+    border-bottom:1px solid var(--border);
+  }
+  .topbar-inner{max-width:1000px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .brand{font-family:var(--serif);font-weight:600;font-size:15px;letter-spacing:.01em;margin-right:auto}
+  .brand .dot{color:var(--accent)}
+  nav.sections{display:flex;gap:4px;flex-wrap:wrap}
+  nav.sections a{font-size:12.5px;color:var(--muted);text-decoration:none;padding:5px 10px;border-radius:6px;letter-spacing:.02em}
+  nav.sections a:hover{color:var(--ink);background:var(--surface)}
+  nav.sections a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  main{max-width:1000px;margin:0 auto;padding:0 24px}
+
+  .hero{padding:66px 0 44px;border-bottom:1px solid var(--border)}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 18px}
+  .hero h1{font-family:var(--serif);font-weight:600;line-height:1.08;font-size:clamp(2.1rem,5vw,3.3rem);margin:0 0 18px;text-wrap:balance;letter-spacing:-.01em}
+  .hero .lede{font-size:clamp(1.05rem,2.2vw,1.2rem);color:var(--muted);max-width:62ch;margin:0}
+  .meta-row{display:flex;gap:28px;flex-wrap:wrap;margin-top:34px;padding-top:26px;border-top:1px solid var(--border)}
+  .meta-row .m{display:flex;flex-direction:column;gap:2px}
+  .meta-row .m .k{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+  .meta-row .m .v{font-size:15px;color:var(--ink);font-weight:500}
+
+  section.doc{padding:54px 0;border-bottom:1px solid var(--border)}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:28px}
+  .sec-num{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+  .sec-head h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.5rem,3.4vw,2.05rem);margin:0;letter-spacing:-.01em;text-wrap:balance}
+  h3{font-family:var(--sans);font-size:.82rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:34px 0 14px;font-weight:600}
+  p{margin:0 0 16px;max-width:68ch}
+  a.link{color:var(--accent-ink);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--accent) 40%,transparent)}
+  a.link:hover{border-bottom-color:var(--accent)}
+  strong{font-weight:650;color:var(--ink)}
+  ul.plain{margin:0 0 16px;padding-left:22px;max-width:68ch}
+  ul.plain li{margin-bottom:8px}
+
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:14px;margin:8px 0 6px}
+  .tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 18px 16px;box-shadow:var(--shadow)}
+  .tile .num{font-family:var(--mono);font-size:1.9rem;font-weight:600;color:var(--ink);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .tile .num.hi{color:var(--accent-ink)}
+  .tile .lbl{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.35}
+  .tile .sub{font-size:11px;color:var(--faint);margin-top:3px;font-family:var(--mono)}
+
+  .tablewrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);margin-bottom:8px}
+  table{border-collapse:collapse;width:100%;font-size:14px;min-width:460px}
+  caption{caption-side:bottom;text-align:left;color:var(--faint);font-size:12px;padding:10px 14px}
+  th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--border)}
+  thead th{background:var(--surface-2);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+  tbody tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+  tr.best td{background:var(--accent-soft);font-weight:600}
+  tr.best td:first-child{color:var(--accent-ink)}
+  td .yes{color:var(--good);font-weight:600}
+  td .no{color:var(--bad)}
+
+  figure.fig{margin:0 0 20px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+  figure.fig img{display:block;width:100%;height:auto;background:#fff}
+  figure.fig figcaption{font-size:12.5px;color:var(--muted);padding:11px 15px;border-top:1px solid var(--border)}
+
+  .pipe{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:6px 0 18px}
+  .pipe .step{flex:1 1 130px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;min-width:130px}
+  .pipe .step .pn{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.06em}
+  .pipe .step .pt{font-size:13.5px;font-weight:600;margin-top:3px}
+  .pipe .step .pd{font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.3}
+
+  .callout{background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 30%,var(--border));border-radius:12px;padding:16px 18px;font-size:14px;margin-bottom:18px}
+  .callout .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:6px}
+  .callout p{margin:0;max-width:none}
+  .callout p + p{margin-top:10px}
+
+  .cards{display:grid;gap:12px;margin-bottom:8px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;border-left:3px solid var(--accent)}
+  .card.dead{border-left-color:var(--bad)}
+  .card .ch{font-weight:600;font-size:14.5px;margin-bottom:5px}
+  .card .sol{font-size:13.5px;color:var(--muted)}
+  .card .sol b{color:var(--accent-ink);font-weight:600}
+
+  pre{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:12.8px;line-height:1.65;margin:0 0 14px}
+  pre .cm{color:var(--faint)}
+  code.inl{font-family:var(--mono);font-size:.88em;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:1px 6px}
+
+  /* ---------- predictor ---------- */
+  .predictor{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+  @media (max-width:820px){.predictor{grid-template-columns:1fr}}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+  .panel h4{margin:0 0 16px;font-size:12px;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:600}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px;font-weight:500}
+  .field input,.field select{
+    width:100%;padding:9px 11px;font-size:14px;font-family:inherit;
+    background:var(--ground);color:var(--ink);
+    border:1px solid var(--border);border-radius:8px;
+  }
+  .field input:focus-visible,.field select:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+  .field .hint{font-size:11px;color:var(--faint);margin-top:4px;font-family:var(--mono)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:420px){.row2{grid-template-columns:1fr}}
+
+  .seg{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:6px}
+  .seg button{
+    flex:1;padding:8px 6px;font-size:12px;font-family:var(--mono);
+    background:var(--ground);color:var(--muted);border:none;cursor:pointer;border-right:1px solid var(--border);
+  }
+  .seg button:last-child{border-right:none}
+  .seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
+  .seg button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+
+  .verdict{text-align:center;padding:8px 0 16px;border-bottom:1px solid var(--border);margin-bottom:16px}
+  .verdict .pct{font-family:var(--mono);font-size:3.4rem;font-weight:600;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+  .verdict .say{font-size:14px;margin-top:10px;font-weight:600}
+  .verdict .say.fund{color:var(--good)}
+  .verdict .say.fail{color:var(--bad)}
+  .verdict .vs{font-size:11.5px;color:var(--faint);margin-top:5px;font-family:var(--mono)}
+  .meter{height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-top:14px;position:relative}
+  .meter .fill{height:100%;background:var(--accent);border-radius:99px;transition:width .25s ease}
+  .meter .mark{position:absolute;top:-3px;width:2px;height:14px;background:var(--ink);opacity:.45}
+
+  .contribs{list-style:none;padding:0;margin:0}
+  .contribs li{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:6px 0;font-size:13px;border-bottom:1px solid var(--border)}
+  .contribs li:last-child{border-bottom:none}
+  .contribs .who{display:flex;align-items:center;gap:8px;min-width:0}
+  .contribs .who .sign{font-family:var(--mono);font-weight:700;flex:none;width:11px}
+  .contribs .who .sign.up{color:var(--good)}
+  .contribs .who .sign.down{color:var(--bad)}
+  .contribs .who .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .contribs .who .nm small{color:var(--faint);font-family:var(--mono);font-size:10.5px;margin-left:5px}
+  .contribs .amt{font-family:var(--mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .bars{margin-top:4px}
+  .bar{height:5px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+  .bar span{display:block;height:100%;border-radius:99px}
+  .bar span.up{background:var(--good)}
+  .bar span.down{background:var(--bad)}
+
+  .loading{color:var(--faint);font-size:13px;font-family:var(--mono);padding:20px 0;text-align:center}
+  .err{color:var(--bad);font-size:13px;padding:14px;border:1px solid var(--bad);border-radius:8px;background:var(--surface)}
+
+  .repo{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-top:6px}
+  .repo .glyph{font-family:var(--mono);font-weight:700;color:var(--accent);font-size:18px}
+  .repo a{font-family:var(--mono);font-size:14px;color:var(--accent-ink);text-decoration:none;word-break:break-all}
+  .repo a:hover{text-decoration:underline}
+
+  footer{padding:40px 0 60px;color:var(--faint);font-size:12.5px;text-align:center}
+  footer .brand{font-family:var(--serif);color:var(--muted)}
+  footer .team-credit{color:var(--muted);font-size:13px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);display:inline-block;letter-spacing:.01em}
+
+  .toggle{border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:7px;padding:5px 10px;font-size:12px;cursor:pointer;font-family:var(--mono);letter-spacing:.03em}
+  .toggle:hover{color:var(--ink)}
+  .toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">Kickstarter Funding Predictor<span class="dot">.</span></span>
+    <nav class="sections" aria-label="Page sections">
+      <a href="#results">Results</a>
+      <a href="#try">Try it</a>
+      <a href="#how">How it works</a>
+      <a href="#negative">What didn't work</a>
+      <a href="#tests">Testing</a>
+      <a href="#code">Code</a>
+    </nav>
+    <button class="toggle" id="themeBtn" aria-label="Toggle color theme">Theme</button>
+  </div>
+</header>
+
+<main>
+
+  <div class="hero">
+    <p class="eyebrow">ML Summer Project · Multi-modal feature fusion</p>
+    <h1>Predicting whether a Kickstarter campaign gets funded</h1>
+    <p class="lede">A leakage-free model that scores a campaign at <em>launch time</em> — fusing the wording of its title with its structured metadata. It reaches <strong>70.7% test accuracy</strong>, clearing the best published benchmark that uses only pre-launch information. The model runs live in your browser further down this page.</p>
+    <div class="meta-row">
+      <div class="m"><span class="k">Test accuracy</span><span class="v" id="metaAcc">70.7%</span></div>
+      <div class="m"><span class="k">Test F1</span><span class="v" id="metaF1">0.613</span></div>
+      <div class="m"><span class="k">Campaigns</span><span class="v">331,672</span></div>
+      <div class="m"><span class="k">Tests</span><span class="v">55 passing</span></div>
+      <div class="m"><span class="k">Report</span><span class="v"><a class="link" href="leadership-report.html">Leadership report</a></span></div>
+    </div>
+  </div>
+
+  <!-- 01 RESULTS -->
+  <section class="doc" id="results">
+    <div class="sec-head"><span class="sec-num">01</span><h2>Results</h2></div>
+
+    <p>Every number here is on a held-out test set of 66,183 campaigns, using only information available before a campaign launched. Outcome columns — <code class="inl">pledged</code>, <code class="inl">backers</code>, <code class="inl">usd_pledged_real</code> — are excluded by design, and nothing was tuned on the test set.</p>
+
+    <div class="tiles">
+      <div class="tile"><div class="num hi">0.707</div><div class="lbl">Accuracy</div><div class="sub">was 0.690</div></div>
+      <div class="tile"><div class="num hi">0.613</div><div class="lbl">F1</div><div class="sub">was 0.573</div></div>
+      <div class="tile"><div class="num hi">0.772</div><div class="lbl">ROC-AUC</div><div class="sub">was 0.740</div></div>
+      <div class="tile"><div class="num hi">0.680</div><div class="lbl">Avg precision</div><div class="sub">was 0.647</div></div>
+      <div class="tile"><div class="num">0.596</div><div class="lbl">Majority baseline</div><div class="sub">always "failed"</div></div>
+    </div>
+
+    <h3>Model comparison</h3>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Model</th><th class="num">Accuracy</th><th class="num">F1</th><th class="num">ROC-AUC</th><th class="num">Avg prec.</th></tr></thead>
+        <tbody>
+          <tr><td>Majority baseline</td><td class="num">0.596</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+          <tr><td>Earlier baseline (L2 logistic regression)</td><td class="num">0.690</td><td class="num">0.575</td><td class="num">0.740</td><td class="num">0.647</td></tr>
+          <tr><td>L2 logistic regression, improved features</td><td class="num">0.696</td><td class="num">0.591</td><td class="num">0.754</td><td class="num">0.660</td></tr>
+          <tr class="best"><td>Gradient boosting (tabular + text SVD)</td><td class="num">0.707</td><td class="num">0.613</td><td class="num">0.772</td><td class="num">0.680</td></tr>
+        </tbody>
+        <caption>Test set, decision threshold 0.50. The boosting model is the best performer; the logistic regression is kept because it explains its predictions — that is the model running in the demo below.</caption>
+      </table>
+    </div>
+
+    <figure class="fig">
+      <img src="figures/09_model_comparison.png" alt="Grouped bar chart comparing accuracy, F1, ROC-AUC and average precision across the earlier baseline, the improved logistic regression, and gradient boosting. Every metric improves, and all sit above the majority-class accuracy line of 0.596." />
+      <figcaption>All four metrics improve over the earlier baseline. The dashed line is the majority-class accuracy — the score you get by always guessing "failed". <em>The charts on this page use the repository's internal naming: <strong>Phase 8</strong> is the original baseline pipeline, <strong>Phase 9</strong> the improved one described here.</em></figcaption>
+    </figure>
+
+    <h3>How this compares to published work</h3>
+    <p>Comparing accuracy on this task is mostly an exercise in auditing what went into someone's feature matrix. Plenty of published results look far better than ours until you check which columns they used.</p>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Source</th><th class="num">Reported</th><th>Fair comparison?</th></tr></thead>
+        <tbody>
+          <tr><td>Springer 2019 — <em>Kickstarter at Launch Time</em> (XGBoost)</td><td class="num">69.8%</td><td><span class="yes">Yes</span> — launch-time features only</td></tr>
+          <tr class="best"><td>This project (gradient boosting)</td><td class="num">70.7%</td><td><span class="yes">Yes</span> — the benchmark to beat</td></tr>
+          <tr><td>Same-dataset LightGBM (public repo)</td><td class="num">70.3%</td><td><span class="no">No</span> — uses pledge-per-backer</td></tr>
+          <tr><td>Assorted blog posts and repos</td><td class="num">86–94%</td><td><span class="no">No</span> — use <code class="inl">backers</code>, i.e. the outcome</td></tr>
+          <tr><td>University thesis 2024 (Random Forest)</td><td class="num">88.3%</td><td><span class="no">No</span> — in-sample score; its own CV figure is ~77%</td></tr>
+          <tr><td>Stanford CS229 — <em>Plead or Pitch?</em></td><td class="num">F1 0.79</td><td><span class="no">No</span> — uses full campaign descriptions</td></tr>
+        </tbody>
+        <caption>The 86–94% figures are not a target. They solve a different problem — one where the answer is already sitting in the features.</caption>
+      </table>
+    </div>
+
+    <div class="callout">
+      <div class="lbl">Read the metrics honestly</div>
+      <p>At the F1-optimal threshold of 0.31 the same model reaches <strong>F1 0.653</strong> and <strong>recall 0.82</strong>, but accuracy drops to 0.649 — below the majority baseline. That is the correct trade only if missing a fundable campaign costs more than a false alarm. Quoting the best accuracy and the best F1 from two different thresholds would be misleading, so both are stated with the threshold attached.</p>
+    </div>
+  </section>
+
+  <!-- 02 TRY IT -->
+  <section class="doc" id="try">
+    <div class="sec-head"><span class="sec-num">02</span><h2>Try the model</h2></div>
+
+    <p>This is the real trained model, not a mock-up. A logistic regression <em>is</em> its coefficients — <code class="inl">p = σ(b + Σ wᵢxᵢ)</code> — so the vocabulary, IDF weights, coefficients and scaler statistics are exported to a 23 KB file and the arithmetic runs in your browser. No server is involved, and the output is verified to match scikit-learn's to within 6×10<sup>-7</sup>.</p>
+
+    <p>Because the model is linear, it can show its work: every token's contribution to the log-odds is exactly its coefficient times its TF-IDF weight. That is why the demo runs the logistic regression rather than the more accurate boosting model — a tree cannot break its reasoning down like this.</p>
+
+    <div class="predictor">
+      <div class="panel">
+        <h4>Campaign details</h4>
+        <div class="field">
+          <label for="fTitle">Campaign title</label>
+          <input type="text" id="fTitle" value="Handmade Oak Desk Lamp" maxlength="120" />
+          <div class="hint" id="titleHint">&nbsp;</div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="fGoal">Funding goal (USD)</label>
+            <input type="number" id="fGoal" value="5000" min="1" max="100000000" step="100" />
+          </div>
+          <div class="field">
+            <label for="fDuration">Duration (days)</label>
+            <input type="number" id="fDuration" value="30" min="1" max="92" step="1" />
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="fMain">Main category</label>
+            <select id="fMain"></select>
+          </div>
+          <div class="field">
+            <label for="fCat">Subcategory</label>
+            <select id="fCat"></select>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="fCountry">Country</label>
+            <select id="fCountry"></select>
+          </div>
+          <div class="field">
+            <label for="fCurrency">Currency</label>
+            <select id="fCurrency"></select>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="fYear">Launch year</label>
+            <select id="fYear"></select>
+            <div class="hint">trained on 2009–2017</div>
+          </div>
+          <div class="field">
+            <label for="fMonth">Launch month</label>
+            <select id="fMonth"></select>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label>Decision threshold</label>
+          <div class="seg" role="group" aria-label="Decision threshold">
+            <button type="button" id="thHalf" aria-pressed="true">0.50 — balanced</button>
+            <button type="button" id="thF1" aria-pressed="false">0.31 — best F1</button>
+          </div>
+          <div class="hint" id="thHint">above 0.50 → predict funded</div>
+        </div>
+      </div>
+
+      <div class="panel" id="resultPanel">
+        <h4>Prediction</h4>
+        <div id="loading" class="loading">loading model…</div>
+        <div id="output" hidden>
+          <div class="verdict">
+            <div class="pct" id="outPct">—</div>
+            <div class="say" id="outSay">&nbsp;</div>
+            <div class="vs" id="outVs">&nbsp;</div>
+            <div class="meter"><div class="fill" id="outFill" style="width:0%"></div><div class="mark" id="outMark" style="left:50%"></div></div>
+          </div>
+          <h4 style="margin-top:0">What drove this</h4>
+          <ul class="contribs" id="outContribs"></ul>
+          <p style="font-size:11.5px;color:var(--faint);margin:14px 0 0;max-width:none;font-family:var(--mono)">contributions are to the log-odds, before the sigmoid</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:22px">
+      <div class="lbl">What this demo is and isn't</div>
+      <p>It reflects patterns in Kickstarter campaigns from 2009–2017, so treat it as a description of that history rather than advice about a campaign today. A ~70% model is wrong roughly three times in ten, and title wording is a weak signal — the dataset has no campaign description, only a title of about four words. Read the direction of the contributions, not the second decimal place of the probability.</p>
+    </div>
+  </section>
+
+  <!-- 03 HOW IT WORKS -->
+  <section class="doc" id="how">
+    <div class="sec-head"><span class="sec-num">03</span><h2>How it works</h2></div>
+
+    <p>The core of the project is <strong>multi-modal fusion</strong>: text and tabular features are unlike in shape — one is a wide sparse matrix, the other is narrow and dense — and the task is to combine them into one matrix a single model can learn from.</p>
+
+    <div class="pipe">
+      <div class="step"><div class="pn">01</div><div class="pt">Clean titles</div><div class="pd">lowercase, letters only, drop stopwords</div></div>
+      <div class="step"><div class="pn">02</div><div class="pt">TF-IDF</div><div class="pd">2,500 terms, fitted on train only</div></div>
+      <div class="step"><div class="pn">03</div><div class="pt">Tabular</div><div class="pd">scale numerics, one-hot categoricals</div></div>
+      <div class="step"><div class="pn">04</div><div class="pt">Fuse</div><div class="pd">sparse hstack → 2,743 columns</div></div>
+      <div class="step"><div class="pn">05</div><div class="pt">Train</div><div class="pd">L2 logistic regression + boosting</div></div>
+    </div>
+
+    <p>Keeping the matrix sparse matters: densifying 2,743 columns across 212,000 rows would cost gigabytes, while the sparse form is 28 MB because only 0.3% of entries are non-zero.</p>
+
+    <h3>Which features actually earned their place</h3>
+    <p>Each row below refits the vectoriser and scaler on the training block alone, so the differences are attributable rather than guesses.</p>
+
+    <figure class="fig">
+      <img src="figures/09_feature_ablation.png" alt="Horizontal bar chart of test F1 for each feature group added one at a time. The baseline feature set scores 0.5726; adding log-transformed goal reaches 0.5819; title length 0.5782; launch date 0.5779; all combined 0.5905; and removing the text block entirely drops to 0.5598." />
+      <figcaption>Adding one feature group at a time. Removing the text block entirely (bottom row) costs about three F1 points — so the campaign title does carry real signal, despite being only a few words.</figcaption>
+    </figure>
+
+    <div class="cards">
+      <div class="card">
+        <div class="ch">Log-transforming the funding goal — the biggest single win</div>
+        <div class="sol">Goals range from a few dollars to $166M, with a median of $5,000 — a skew of <b>83</b>. Standardising that raw gives a linear model a coefficient on a variable whose useful range is the first 0.2% of its span. A log transform brings the skew to <b>−0.14</b>.</div>
+      </div>
+      <div class="card">
+        <div class="ch">The launch date was being thrown away</div>
+        <div class="sol">Only campaign <em>duration</em> was derived from the dates. But success rate swings from <b>50.6%</b> in 2011 to <b>32.1%</b> in 2015 — a 19-point spread that matches Kickstarter's documented platform-wide decline after 2014.</div>
+      </div>
+      <div class="card">
+        <div class="ch">Two features were computed and never used</div>
+        <div class="sol">Title length and word count were calculated early in the project and never reached the model. Feeding them in was <b>free</b> — the columns already existed.</div>
+      </div>
+    </div>
+
+    <figure class="fig" style="margin-top:20px">
+      <img src="figures/09_success_rate_by_launch_year.png" alt="Bar chart of campaign success rate by launch year from 2009 to 2017, peaking at 0.509 in 2011 and bottoming at 0.319 in 2015." />
+      <figcaption>Success rate by launch year — the signal that was being discarded.</figcaption>
+    </figure>
+
+    <h3>Choosing the threshold without cheating</h3>
+    <p>An earlier version of this project picked both the regularisation strength and the decision threshold by looking at the test set. That is selection-on-test: it makes the reported number optimistic by an unknown amount, and leaves no honest answer to "so how did you choose 0.31?"</p>
+    <p>The pipeline now carves a validation split out of the training data and makes both choices there. The test set is touched once, at the end.</p>
+
+    <figure class="fig">
+      <img src="figures/09_threshold_selection.png" alt="Line chart of F1 against decision threshold for both the validation and test sets. The two curves are nearly identical and the threshold chosen on validation, 0.31, sits on the test curve's peak." />
+      <figcaption>The validation and test curves are almost coincident, and the threshold chosen on validation lands on the test optimum — evidence the choice generalised rather than got lucky.</figcaption>
+    </figure>
+  </section>
+
+  <!-- 04 WHAT DIDN'T WORK -->
+  <section class="doc" id="negative">
+    <div class="sec-head"><span class="sec-num">04</span><h2>What didn't work</h2></div>
+
+    <p>The most useful result in this project is a hypothesis that turned out to be wrong, and is documented rather than quietly dropped.</p>
+
+    <p>Gradient boosting beats logistic regression here by about two F1 points. The intuitive explanation is a missing <em>interaction</em>: a $10,000 goal is routine for a Music project and brutal for a Technology one, and a linear model that adds <code class="inl">w_goal + w_technology</code> cannot express that.</p>
+
+    <p>So we built the interaction — six different ways, up to a full grid of goal-quantile × category cells at 150 extra columns, which is the most expressive hand-crafted form short of an actual tree.</p>
+
+    <figure class="fig">
+      <img src="figures/09_interaction_vs_tree.png" alt="Horizontal bar chart of test F1 for six hand-crafted interaction variants, all clustered between 0.5905 and 0.5939, against a dashed reference line at 0.6126 for gradient boosting, which sits far to the right of every bar." />
+      <figcaption>Every hand-crafted interaction lands in a flat band far short of the tree. The best recovers about 15% of the gap.</figcaption>
+    </figure>
+
+    <div class="callout">
+      <div class="lbl">Conclusion</div>
+      <p>The tree's advantage is <strong>not</strong> one nameable missing term. It is diffuse non-linearity spread across many features — exactly the thing hand-engineering cannot reach and a tree finds for free.</p>
+      <p>So the interaction columns are <strong>not</strong> in the shipped model, and the table above is why. Time spent inventing more interaction features on this dataset would be time wasted.</p>
+    </div>
+
+    <h3>Also ruled out</h3>
+    <div class="cards">
+      <div class="card dead">
+        <div class="ch">More TF-IDF tuning — bigrams, larger vocabulary</div>
+        <div class="sol">This dataset has no campaign description, only a title averaging about four words. Every study that beats us on text uses full descriptions. This is a <b>data limit, not a code limit</b>.</div>
+      </div>
+      <div class="card dead">
+        <div class="ch">Stronger regularisation</div>
+        <div class="sol">The regularisation sweep was already flat above C=0.1 with a train/test gap of about one F1 point. The model was <b>underfitting</b> — an underfitting model does not improve by being penalised harder.</div>
+      </div>
+      <div class="card dead">
+        <div class="ch">Chasing 90% accuracy</div>
+        <div class="sol">Reachable only by including <code class="inl">backers</code> or <code class="inl">pledged</code>, which are known only after a campaign runs. That is not a better model, it is <b>a different and much easier problem</b>.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 TESTING -->
+  <section class="doc" id="tests">
+    <div class="sec-head"><span class="sec-num">05</span><h2>How it's tested</h2></div>
+
+    <p>Every headline number on this page is only meaningful if no outcome column reached the model and nothing fitted on training data ever saw validation or test. Those properties are easy to break silently with a one-line edit, so they are asserted in a test suite rather than trusted.</p>
+
+    <div class="tiles">
+      <div class="tile"><div class="num hi">55</div><div class="lbl">tests passing</div><div class="sub">pytest</div></div>
+      <div class="tile"><div class="num">6×10⁻⁷</div><div class="lbl">browser vs scikit-learn</div><div class="sub">max disagreement</div></div>
+      <div class="tile"><div class="num">&lt;5s</div><div class="lbl">full suite runtime</div><div class="sub">so it actually gets run</div></div>
+    </div>
+
+    <h3>What the suite guards</h3>
+    <ul class="plain">
+      <li><strong>Leakage.</strong> No outcome column may be configured as a feature, and every non-text column in the fused matrix must trace back to a declared config entry.</li>
+      <li><strong>Fit-on-train-only.</strong> The vocabulary must be a subset of tokens appearing in the training block, and the scaler's row count must equal the training block's — which catches the classic mistake of fitting before splitting.</li>
+      <li><strong>Split integrity.</strong> Train, validation and test must be disjoint and must together cover every row exactly once.</li>
+      <li><strong>Browser parity.</strong> The exported model is re-scored from the JSON alone and must match scikit-learn's output. Without this, the live demo could quietly mislead visitors while every number in the repository stayed correct.</li>
+      <li><strong>Published claims.</strong> The metrics on this page are asserted as floors, so a future change that degrades the model fails the build instead of silently making the website wrong.</li>
+      <li><strong>Documented findings.</strong> Including the negative result — if hand-crafted interactions ever start helping more than documented, a test fails and tells us to update the write-up.</li>
+    </ul>
+
+    <p>One test exists purely as a regression guard for a real bug: category codes came back as 8-bit integers, so multiplying by the bin count silently overflowed to negative array indices past level 127 and crashed on the 159-level column. The test builds an interaction block on that column and asserts the result stays non-negative.</p>
+
+    <pre><span class="cm"># run the suite</span>
+pytest
+
+<span class="cm"># reproduce every number and figure on this page</span>
+python -m src.train        <span class="cm"># fit, evaluate, write artifacts + figures</span>
+python -m src.ablations    <span class="cm"># feature and interaction ablation tables</span>
+python -m src.export_web   <span class="cm"># regenerate the browser model (verifies parity)</span></pre>
+  </section>
+
+  <!-- 06 CODE -->
+  <section class="doc" id="code">
+    <div class="sec-head"><span class="sec-num">06</span><h2>Code &amp; documentation</h2></div>
+
+    <div class="repo">
+      <span class="glyph">&gt;_</span>
+      <a href="https://github.com/sathvik89/kickstarter-funding-prediction">github.com/sathvik89/kickstarter-funding-prediction</a>
+    </div>
+
+    <h3>Where things live</h3>
+    <ul class="plain">
+      <li><code class="inl">notebooks/01–08</code> — the original pipeline, kept frozen as the record of how each stage was validated</li>
+      <li><code class="inl">notebooks/09_improved_pipeline.ipynb</code> — the feature work, validation split and ceiling check</li>
+      <li><code class="inl">src/</code> — the promoted, parameterised pipeline: cleaning, fusion, training, ablations, figures, web export</li>
+      <li><code class="inl">tests/</code> — the 55-test suite described above</li>
+      <li><code class="inl">docs/phase9-improvements.md</code> — the full write-up, with every measurement and the benchmark comparison</li>
+    </ul>
+
+    <h3>Further reading</h3>
+    <ul class="plain">
+      <li><a class="link" href="leadership-report.html">Leadership report</a> — project framing, team structure and contributions</li>
+      <li><a class="link" href="learning-guide.html">Concept learning guide</a> — TF-IDF, fusion, regularisation and metrics explained from scratch</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  <div class="team-credit">Built by Sathvik, with Dhanush, Harsha and Karthik</div>
+  <div><span class="brand">Kickstarter Funding Predictor</span> · model runs client-side · no data leaves your browser</div>
+</footer>
+
+<script>
+/* ---------- theme toggle ---------- */
+(function () {
+  const btn = document.getElementById('themeBtn');
+  const stored = localStorage.getItem('ksTheme');
+  if (stored) document.documentElement.setAttribute('data-theme', stored);
+  btn.addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme');
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const next = cur ? (cur === 'dark' ? 'light' : 'dark') : (sysDark ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('ksTheme', next);
+  });
+})();
+
+/* ---------- the model ----------
+   Mirrors src/export_web.py's score_from_payload, which is itself verified
+   against scikit-learn's predict_proba. The four rules that must not drift:
+     1. clean the title the same way training did (lowercase, letters, stopwords)
+     2. keep tokens of length >= 2  (sklearn's default token pattern)
+     3. tf * idf, then L2-normalise the row
+     4. unknown categorical levels contribute nothing (handle_unknown="ignore")
+--------------------------------- */
+let MODEL = null;
+let THRESHOLD = 0.5;
+
+const el = (id) => document.getElementById(id);
+
+function cleanTitle(text) {
+  const lowered = String(text).toLowerCase().replace(/[^a-z]+/g, ' ');
+  return lowered.split(' ').filter((t) => t && !MODEL.stopSet.has(t));
+}
+
+function score() {
+  const m = MODEL;
+  let z = m.intercept;
+  const contribs = [];
+
+  /* --- text --- */
+  const tokens = cleanTitle(el('fTitle').value).filter((t) => t.length >= m.tfidf.min_token_length);
+  const counts = new Map();
+  for (const t of tokens) if (m.vocab[t]) counts.set(t, (counts.get(t) || 0) + 1);
+
+  let norm = 0;
+  const weights = new Map();
+  for (const [t, c] of counts) {
+    const w = c * m.vocab[t][0];          // tf * idf
+    weights.set(t, w);
+    norm += w * w;
+  }
+  norm = Math.sqrt(norm);
+  let known = 0;
+  if (norm > 0) {
+    for (const [t, w] of weights) {
+      const contribution = (w / norm) * m.vocab[t][1];
+      z += contribution;
+      contribs.push({ name: t, kind: 'word', value: contribution });
+      known++;
+    }
+  }
+
+  /* --- numeric --- */
+  const goal = Math.max(0, Number(el('fGoal').value) || 0);
+  const raw = {
+    log_goal: Math.log1p(goal),
+    duration_days: Number(el('fDuration').value) || 0,
+    name_len: el('fTitle').value.length,
+    name_words: el('fTitle').value.trim().split(/\s+/).filter(Boolean).length,
+  };
+  const pretty = {
+    log_goal: 'funding goal',
+    duration_days: 'duration',
+    name_len: 'title length',
+    name_words: 'word count',
+  };
+  for (const spec of m.numeric) {
+    const contribution = ((raw[spec.name] - spec.mean) / spec.scale) * spec.coef;
+    z += contribution;
+    contribs.push({ name: pretty[spec.name], kind: 'number', value: contribution });
+  }
+
+  /* --- categorical --- */
+  const picks = {
+    category: el('fCat').value,
+    main_category: el('fMain').value,
+    currency: el('fCurrency').value,
+    country: el('fCountry').value,
+    launch_year: el('fYear').value,
+    launch_month: el('fMonth').value,
+    launch_dow: '1',   // not asked for; held at the modal weekday
+  };
+  const catLabel = { category: 'subcategory', main_category: 'category', currency: 'currency',
+                     country: 'country', launch_year: 'launch year', launch_month: 'launch month',
+                     launch_dow: 'launch weekday' };
+  for (const [col, level] of Object.entries(picks)) {
+    const table = m.categorical[col];
+    if (!table) continue;
+    const coef = Object.prototype.hasOwnProperty.call(table, level) ? table[level] : 0;
+    z += coef;
+    if (col === 'launch_dow') continue;   // not user-controlled, so not shown
+    contribs.push({ name: `${catLabel[col]}: ${level}`, kind: 'category', value: coef });
+  }
+
+  return { p: 1 / (1 + Math.exp(-z)), contribs, knownWords: known, totalWords: tokens.length };
+}
+
+function render() {
+  if (!MODEL) return;
+  const { p, contribs, knownWords, totalWords } = score();
+  const pct = (p * 100).toFixed(1);
+
+  el('outPct').textContent = pct + '%';
+  const funded = p >= THRESHOLD;
+  const say = el('outSay');
+  say.textContent = funded ? 'Predicted: funded' : 'Predicted: not funded';
+  say.className = 'say ' + (funded ? 'fund' : 'fail');
+  el('outVs').textContent = `${pct}% ${funded ? '≥' : '<'} ${THRESHOLD.toFixed(2)} threshold`;
+  el('outFill').style.width = pct + '%';
+  el('outMark').style.left = (THRESHOLD * 100) + '%';
+
+  el('titleHint').textContent = totalWords === 0
+    ? 'no usable words — every token was a stopword'
+    : `${knownWords} of ${totalWords} word${totalWords === 1 ? '' : 's'} known to the model`;
+
+  contribs.sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+  const top = contribs.slice(0, 9);
+  const max = Math.max(...top.map((c) => Math.abs(c.value)), 1e-9);
+
+  el('outContribs').innerHTML = top.map((c) => {
+    const up = c.value > 0;
+    const width = (Math.abs(c.value) / max) * 100;
+    const label = c.kind === 'word' ? `“${c.name}”` : c.name;
+    const tag = c.kind === 'word' ? '<small>word</small>' : '';
+    return `<li>
+      <div class="who" style="min-width:0">
+        <span class="sign ${up ? 'up' : 'down'}">${up ? '▲' : '▼'}</span>
+        <span class="nm">${escapeHtml(label)}${tag}</span>
+      </div>
+      <span class="amt">${up ? '+' : '−'}${Math.abs(c.value).toFixed(3)}</span>
+      <div class="bars" style="grid-column:1 / -1">
+        <div class="bar"><span class="${up ? 'up' : 'down'}" style="width:${width}%"></span></div>
+      </div>
+    </li>`;
+  }).join('');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function fillSelect(node, values, chosen) {
+  node.innerHTML = values.map((v) =>
+    `<option value="${escapeHtml(v)}"${v === chosen ? ' selected' : ''}>${escapeHtml(v)}</option>`
+  ).join('');
+}
+
+const MONTHS = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+
+function buildForm() {
+  const m = MODEL, d = m.defaults;
+  const mains = Object.keys(m.category_tree).sort();
+  fillSelect(el('fMain'), mains, d.main_category);
+
+  const syncSubcategories = () => {
+    const main = el('fMain').value;
+    const subs = m.category_tree[main] || [];
+    // Alphabetical list, but open on the parent's most common subcategory.
+    fillSelect(el('fCat'), subs, m.default_category[main] || subs[0]);
+  };
+  syncSubcategories();
+  el('fMain').addEventListener('change', () => { syncSubcategories(); render(); });
+
+  fillSelect(el('fCountry'), Object.keys(m.categorical.country).sort(), d.country);
+  fillSelect(el('fCurrency'), Object.keys(m.categorical.currency).sort(), d.currency);
+  fillSelect(el('fYear'), Object.keys(m.categorical.launch_year).sort(), d.launch_year);
+
+  const months = Object.keys(m.categorical.launch_month).sort((a, b) => a - b);
+  el('fMonth').innerHTML = months.map((v) =>
+    `<option value="${v}"${v === d.launch_month ? ' selected' : ''}>${MONTHS[Number(v) - 1]}</option>`
+  ).join('');
+
+  el('fGoal').value = Math.round(d.goal_usd);
+  el('fDuration').value = Math.round(d.duration_days);
+
+  for (const id of ['fTitle', 'fGoal', 'fDuration', 'fCat', 'fCountry', 'fCurrency', 'fYear', 'fMonth']) {
+    el(id).addEventListener('input', render);
+    el(id).addEventListener('change', render);
+  }
+
+  const half = el('thHalf'), f1 = el('thF1');
+  const setThreshold = (value, pressed, other) => {
+    THRESHOLD = value;
+    pressed.setAttribute('aria-pressed', 'true');
+    other.setAttribute('aria-pressed', 'false');
+    el('thHint').textContent = `above ${value.toFixed(2)} → predict funded`;
+    render();
+  };
+  half.addEventListener('click', () => setThreshold(m.thresholds.default, half, f1));
+  f1.addEventListener('click', () => setThreshold(m.thresholds.f1_optimal, f1, half));
+}
+
+fetch('model.json')
+  .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+  .then((payload) => {
+    MODEL = payload;
+    MODEL.stopSet = new Set(payload.stopwords);
+    el('metaAcc').textContent = (payload.metrics['boosting_at_0.5'].accuracy * 100).toFixed(1) + '%';
+    el('metaF1').textContent = payload.metrics['boosting_at_0.5'].f1.toFixed(3);
+    buildForm();
+    el('loading').hidden = true;
+    el('output').hidden = false;
+    render();
+  })
+  .catch((err) => {
+    el('loading').outerHTML =
+      `<div class="err"><strong>Could not load the model.</strong><br />${escapeHtml(err.message)}
+       <br /><br />If you opened this file directly from disk, the browser blocks the fetch.
+       Serve the folder over HTTP instead: <code class="inl">python -m http.server</code></div>`;
+  });
+</script>
+</body>
+</html>

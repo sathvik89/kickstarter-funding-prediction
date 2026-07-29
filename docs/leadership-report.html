@@ -219,7 +219,7 @@
       <div class="m"><span class="k">Prepared by</span><span class="v">Sathvik — Project Leader</span></div>
       <div class="m"><span class="k">Team</span><span class="v">4 members</span></div>
       <div class="m"><span class="k">Date</span><span class="v">17 July 2026</span></div>
-      <div class="m"><span class="k">Status</span><span class="v">Baseline complete</span></div>
+      <div class="m"><span class="k">Status</span><span class="v">Phase 9 complete</span></div>
     </div>
   </div>
 
@@ -291,7 +291,12 @@
     </div>
     <div class="callout" style="margin-top:16px">
       <div class="lbl">What the numbers say</div>
-      Fusion beats either modality alone — text-only F1 ≈ 0.46, tabular-only ≈ 0.53, <strong>fused ≈ 0.57</strong>. At ~0.69 accuracy the model is ~9 points above the majority baseline. This is a genuinely hard problem, and lifting accuracy further is the current focus (see Section 05).
+      Fusion beats either modality alone — text-only F1 ≈ 0.46, tabular-only ≈ 0.53, <strong>fused ≈ 0.57</strong>. At ~0.69 accuracy the model is ~9 points above the majority baseline. This is a genuinely hard problem, and lifting accuracy further became the next phase of work (see Section 05).
+    </div>
+
+    <div class="callout" style="margin-top:14px">
+      <div class="lbl">Update — the table above is the Phase 8 baseline</div>
+      <p>It is kept as the record of what the baseline achieved. Phase 9 has since improved on it: <strong>accuracy 0.707</strong>, <strong>F1 0.613</strong>, <strong>ROC-AUC 0.772</strong>, still with no leakage columns and — unlike the sweep above — with nothing selected on the test set. The full write-up and a live in-browser predictor are on the <a class="link" href="index.html">project site</a>.</p>
     </div>
   </section>
 
@@ -403,7 +408,7 @@ clf.fit(X_train_fused, y_train)</pre>
     <div class="two" style="margin-top:34px">
       <div>
         <h3>Current status</h3>
-        <p>The <strong>baseline project is complete</strong> end to end — every phase, from data collection through evaluation, runs and reproduces. All notebooks now converge on a single open goal: <strong>raising accuracy and the other metrics</strong>, with faculty guidance, before refactoring the notebook logic into a clean <code class="inl">src/</code> package.</p>
+        <p>The baseline is complete end to end, and <strong>Phase 9 is now done too</strong>: the notebook logic has been refactored into a <code class="inl">src/</code> package, the feature set and validation methodology were fixed, and accuracy rose to <strong>0.707</strong>. A 66-test suite guards the leakage and fit-on-train-only properties, and the model is deployed as a <a class="link" href="index.html">live in-browser predictor</a>.</p>
       </div>
       <div>
         <h3>Next milestones</h3>

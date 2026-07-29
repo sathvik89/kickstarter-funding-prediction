@@ -2,6 +2,8 @@
 
 Multi-modal feature fusion on Kickstarter campaign data: clean campaign titles, build TF-IDF text features, preprocess tabular fields, fuse sparse + dense matrices, and train a regularized logistic regression model to predict funding success.
 
+**🔗 [Live site + in-browser predictor](https://sathvik89.github.io/kickstarter-funding-prediction/)** — the trained model runs client-side, no server involved.
+
 ## Problem
 
 Predict a **binary funding outcome** (`successful` vs `failed`) from:
@@ -64,6 +66,26 @@ source .venv/bin/activate
 pip install -r requirements.txt
 python -m ipykernel install --user --name=ml-summer --display-name="ML Summer Project"
 ```
+
+## Tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest                    # 66 tests, ~6s
+```
+
+The suite exists because the headline numbers are only meaningful if two properties hold, and both are easy to break silently:
+
+- **No leakage.** No outcome column may be configured as a feature, and every non-text column in the fused matrix must trace back to a declared config entry.
+- **Fit on train only.** The TF-IDF vocabulary must be a subset of training-block tokens and the scaler's row count must equal the training block's — which catches fitting before splitting.
+
+It also guards **browser parity**: the model exported to `docs/model.json` is re-scored from the JSON alone and must match scikit-learn, and the live page's JavaScript is executed in Node and compared too. Without those, the live demo could quietly mislead visitors while every number in the repo stayed correct.
+
+## Live predictor
+
+A logistic regression is just `p = σ(b + Σ wᵢxᵢ)`, so the model *is* its coefficients. `python -m src.export_web` serializes the vocabulary, IDF weights, coefficients and scaler stats to a ~24 KB (gzipped) JSON file, and the page scores it in JavaScript — free hosting on GitHub Pages, no cold starts, and the linear form lets it show which words and fields drove each prediction.
+
+The demo runs the logistic regression (0.696) rather than the boosting model (0.707): it is 20× lighter to ship and, unlike a tree, it can explain itself. Both numbers are labelled on the page.
 
 ## Development approach
 
