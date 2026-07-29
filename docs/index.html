@@ -207,6 +207,7 @@
   <div class="topbar-inner">
     <span class="brand">Kickstarter Funding Predictor<span class="dot">.</span></span>
     <nav class="sections" aria-label="Page sections">
+      <a href="#about">What is this?</a>
       <a href="#results">Results</a>
       <a href="#try">Try it</a>
       <a href="#how">How it works</a>
@@ -228,14 +229,73 @@
       <div class="m"><span class="k">Test accuracy</span><span class="v" id="metaAcc">70.7%</span></div>
       <div class="m"><span class="k">Test F1</span><span class="v" id="metaF1">0.613</span></div>
       <div class="m"><span class="k">Campaigns</span><span class="v">331,672</span></div>
-      <div class="m"><span class="k">Tests</span><span class="v">55 passing</span></div>
+      <div class="m"><span class="k">Tests</span><span class="v">66 passing</span></div>
       <div class="m"><span class="k">Report</span><span class="v"><a class="link" href="leadership-report.html">Leadership report</a></span></div>
     </div>
   </div>
 
-  <!-- 01 RESULTS -->
+  <!-- 01 WHAT IS THIS -->
+  <section class="doc" id="about">
+    <div class="sec-head"><span class="sec-num">01</span><h2>What is this?</h2></div>
+
+    <p><strong>In one sentence:</strong> it guesses whether a Kickstarter campaign will hit its funding goal, using only things you'd know <em>before</em> the campaign went live — the wording of the title, how much money it asks for, what category it's in, which country, and when it launched.</p>
+
+    <p>You can <a class="link" href="#try">try it yourself further down</a>. Type in a campaign idea and it will score it and tell you which parts helped or hurt.</p>
+
+    <h3>The real subject: fusing two very different kinds of data</h3>
+
+    <p>The prediction task is the vehicle. The actual problem being solved is <strong>multi-modal feature fusion</strong> — combining inputs with genuinely different shapes into one matrix a single model can learn from.</p>
+
+    <div class="two">
+      <div>
+        <div class="card" style="border-left-color:var(--accent)">
+          <div class="ch">The text side</div>
+          <div class="sol">A campaign title becomes <strong>2,500 columns</strong> of TF-IDF scores — one per vocabulary word. But a four-word title touches only about four of them, so the matrix is <strong>99.5% zeros</strong>. Very wide, almost empty.</div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="border-left-color:var(--warn)">
+          <div class="ch">The tabular side</div>
+          <div class="sol">Goal, category, country, currency, duration, launch date — <strong>243 columns</strong> after encoding. Narrow, dense, and mixed: some numbers, some categories.</div>
+        </div>
+      </div>
+    </div>
+
+    <p style="margin-top:18px">You cannot simply paste those together without care. Three things go wrong if you do, and all three are handled here:</p>
+
+    <ul class="plain">
+      <li><strong>Memory.</strong> Converting the fused matrix to a normal dense array turns <strong>35 MB into 4.6 GB</strong> — a 132× blow-up for a matrix that is almost all zeros. It stays sparse the whole way through.</li>
+      <li><strong>Row alignment.</strong> If row 7 of the text block belongs to a different campaign than row 7 of the tabular block, you train on mismatched labels and get a model that looks fine and is nonsense. The split order is frozen and asserted.</li>
+      <li><strong>Leakage.</strong> If the word list is built from all the data before splitting, test information bleeds into training. Every transformer is fitted on the training block alone, and a test checks it.</li>
+    </ul>
+
+    <h3>Why the accuracy is "only" 70%</h3>
+
+    <p>This is the part worth understanding, because it is deliberate.</p>
+
+    <p>You will find plenty of Kickstarter models online reporting 86–94% accuracy. Nearly all of them use <code class="inl">backers</code> or <code class="inl">pledged</code> as inputs. Those are the <em>outcome</em> — a campaign with 400 backers obviously succeeded. Those models have not predicted anything; they have read the answer off the page. And they are useless in practice, because a campaign that hasn't launched yet has no backers.</p>
+
+    <p>This project bans those columns. Under those honest rules, the best published result anywhere is <strong>69.8%</strong>, and always guessing "failed" gets you <strong>59.6%</strong>. So 70.7% is roughly eleven points of genuine signal, and slightly ahead of the published state of the art.</p>
+
+    <div class="callout">
+      <div class="lbl">If you only remember one thing</div>
+      <p>A lower number under honest rules beats a higher number under dishonest ones. Every figure on this page excludes anything that would not exist at the moment a campaign launches.</p>
+    </div>
+
+    <h3>How it works, in five steps</h3>
+    <div class="pipe">
+      <div class="step"><div class="pn">01</div><div class="pt">Clean the title</div><div class="pd">lowercase, letters only, drop filler words</div></div>
+      <div class="step"><div class="pn">02</div><div class="pt">Score the words</div><div class="pd">TF-IDF over a 2,500-word vocabulary</div></div>
+      <div class="step"><div class="pn">03</div><div class="pt">Encode the rest</div><div class="pd">scale numbers, one column per category</div></div>
+      <div class="step"><div class="pn">04</div><div class="pt">Fuse</div><div class="pd">glue both blocks into one sparse matrix</div></div>
+      <div class="step"><div class="pn">05</div><div class="pt">Predict</div><div class="pd">logistic regression, and a tree for comparison</div></div>
+    </div>
+    <p style="font-size:13.5px;color:var(--muted)">Details of every stage are in <a class="link" href="#how">section 04</a>, and the full technical write-up is in <a class="link" href="https://github.com/sathvik89/kickstarter-funding-prediction/blob/main/PROJECT.md">PROJECT.md</a>.</p>
+  </section>
+
+  <!-- 02 RESULTS -->
   <section class="doc" id="results">
-    <div class="sec-head"><span class="sec-num">01</span><h2>Results</h2></div>
+    <div class="sec-head"><span class="sec-num">02</span><h2>Results</h2></div>
 
     <p>Every number here is on a held-out test set of 66,183 campaigns, using only information available before a campaign launched. Outcome columns — <code class="inl">pledged</code>, <code class="inl">backers</code>, <code class="inl">usd_pledged_real</code> — are excluded by design, and nothing was tuned on the test set.</p>
 
@@ -292,11 +352,25 @@
 
   <!-- 02 TRY IT -->
   <section class="doc" id="try">
-    <div class="sec-head"><span class="sec-num">02</span><h2>Try the model</h2></div>
+    <div class="sec-head"><span class="sec-num">03</span><h2>Try the model</h2></div>
 
     <p>This is the real trained model, not a mock-up. A logistic regression <em>is</em> its coefficients — <code class="inl">p = σ(b + Σ wᵢxᵢ)</code> — so the vocabulary, IDF weights, coefficients and scaler statistics are exported to a 23 KB file and the arithmetic runs in your browser. No server is involved, and the output is verified to match scikit-learn's to within 6×10<sup>-7</sup>.</p>
 
-    <p>Because the model is linear, it can show its work: every token's contribution to the log-odds is exactly its coefficient times its TF-IDF weight. That is why the demo runs the logistic regression rather than the more accurate boosting model — a tree cannot break its reasoning down like this.</p>
+    <div class="callout">
+      <div class="lbl">Which model is running here</div>
+      <p>This demo is the <strong>logistic regression</strong> (accuracy 0.696), <em>not</em> the gradient boosting model (0.707) reported above. Two reasons: a linear model can break down <em>why</em> it predicted something — each word's contribution is exactly its coefficient times its TF-IDF weight — and a tree cannot. And the booster would need its 217 trees plus a 1.2 MB matrix shipped to your browser, about 20× the download.</p>
+      <p>So the best model is the one in the results table; the explainable one is the one you can play with.</p>
+    </div>
+
+    <h3>Things worth trying</h3>
+    <ul class="plain">
+      <li><strong>Change the goal from $5,000 to $500,000.</strong> Watch the probability fall. The funding goal is the strongest single feature in the model.</li>
+      <li><strong>Switch the category from Design to Technology</strong> at the same goal. Technology campaigns are harder to fund.</li>
+      <li><strong>Set the launch year to 2015, then 2011.</strong> A ~19-point swing in the underlying success rate shows up here — 2015 was Kickstarter's worst year, 2011 its best.</li>
+      <li><strong>Try a title of only filler words</strong> — "the and of it". The hint under the box will tell you nothing was usable, and the text block contributes zero.</li>
+      <li><strong>Flip the threshold to 0.31.</strong> The probability doesn't change — only the verdict does. That is the whole point of a threshold: it is a decision rule, not a model change.</li>
+      <li><strong>Type a country the model never saw.</strong> It contributes exactly zero rather than erroring, which is <code class="inl">handle_unknown="ignore"</code> doing its job.</li>
+    </ul>
 
     <div class="predictor">
       <div class="panel">
@@ -382,7 +456,7 @@
 
   <!-- 03 HOW IT WORKS -->
   <section class="doc" id="how">
-    <div class="sec-head"><span class="sec-num">03</span><h2>How it works</h2></div>
+    <div class="sec-head"><span class="sec-num">04</span><h2>How it works</h2></div>
 
     <p>The core of the project is <strong>multi-modal fusion</strong>: text and tabular features are unlike in shape — one is a wide sparse matrix, the other is narrow and dense — and the task is to combine them into one matrix a single model can learn from.</p>
 
@@ -436,7 +510,7 @@
 
   <!-- 04 WHAT DIDN'T WORK -->
   <section class="doc" id="negative">
-    <div class="sec-head"><span class="sec-num">04</span><h2>What didn't work</h2></div>
+    <div class="sec-head"><span class="sec-num">05</span><h2>What didn't work</h2></div>
 
     <p>The most useful result in this project is a hypothesis that turned out to be wrong, and is documented rather than quietly dropped.</p>
 
@@ -474,12 +548,12 @@
 
   <!-- 05 TESTING -->
   <section class="doc" id="tests">
-    <div class="sec-head"><span class="sec-num">05</span><h2>How it's tested</h2></div>
+    <div class="sec-head"><span class="sec-num">06</span><h2>How it's tested</h2></div>
 
     <p>Every headline number on this page is only meaningful if no outcome column reached the model and nothing fitted on training data ever saw validation or test. Those properties are easy to break silently with a one-line edit, so they are asserted in a test suite rather than trusted.</p>
 
     <div class="tiles">
-      <div class="tile"><div class="num hi">55</div><div class="lbl">tests passing</div><div class="sub">pytest</div></div>
+      <div class="tile"><div class="num hi">66</div><div class="lbl">tests passing</div><div class="sub">pytest</div></div>
       <div class="tile"><div class="num">6×10⁻⁷</div><div class="lbl">browser vs scikit-learn</div><div class="sub">max disagreement</div></div>
       <div class="tile"><div class="num">&lt;5s</div><div class="lbl">full suite runtime</div><div class="sub">so it actually gets run</div></div>
     </div>
@@ -507,7 +581,7 @@ python -m src.export_web   <span class="cm"># regenerate the browser model (veri
 
   <!-- 06 CODE -->
   <section class="doc" id="code">
-    <div class="sec-head"><span class="sec-num">06</span><h2>Code &amp; documentation</h2></div>
+    <div class="sec-head"><span class="sec-num">07</span><h2>Code &amp; documentation</h2></div>
 
     <div class="repo">
       <span class="glyph">&gt;_</span>
@@ -519,7 +593,7 @@ python -m src.export_web   <span class="cm"># regenerate the browser model (veri
       <li><code class="inl">notebooks/01–08</code> — the original pipeline, kept frozen as the record of how each stage was validated</li>
       <li><code class="inl">notebooks/09_improved_pipeline.ipynb</code> — the feature work, validation split and ceiling check</li>
       <li><code class="inl">src/</code> — the promoted, parameterised pipeline: cleaning, fusion, training, ablations, figures, web export</li>
-      <li><code class="inl">tests/</code> — the 55-test suite described above</li>
+      <li><code class="inl">tests/</code> — the 66-test suite described above</li>
       <li><code class="inl">docs/phase9-improvements.md</code> — the full write-up, with every measurement and the benchmark comparison</li>
     </ul>
 

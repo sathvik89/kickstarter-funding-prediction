@@ -1,15 +1,35 @@
-# Predictive Sales Analytics Engine
+# Kickstarter Funding Predictor
 
-Multi-modal feature fusion on Kickstarter campaign data: clean campaign titles, build TF-IDF text features, preprocess tabular fields, fuse sparse + dense matrices, and train a regularized logistic regression model to predict funding success.
+Predicts whether a Kickstarter campaign will hit its funding goal, using **only information that existed before the campaign launched**.
 
-**🔗 [Live site + in-browser predictor](https://sathvik89.github.io/kickstarter-funding-prediction/)** — the trained model runs client-side, no server involved.
+### ▶ [Try the live model](https://sathvik89.github.io/kickstarter-funding-prediction/) · 📖 [Read the full project guide](PROJECT.md)
 
-## Problem
+The trained model runs entirely in your browser — no server, no waiting. Type in a campaign idea and it scores it and shows which words and fields drove the answer.
 
-Predict a **binary funding outcome** (`successful` vs `failed`) from:
+---
 
-- **Text:** campaign `name`
-- **Tabular:** pre-campaign metadata (goal, category, country, duration, etc.)
+## What this project is really about
+
+The prediction task is the vehicle. The subject is **multi-modal feature fusion** — combining inputs with genuinely different shapes into one matrix a single model can learn from.
+
+|  | Shape | Character |
+|---|---|---|
+| **Text** — the campaign title, via TF-IDF | 2,500 columns | very wide, 99.5% zeros |
+| **Tabular** — goal, category, country, duration, launch date | 243 columns | narrow, dense, mixed types |
+
+You cannot paste those together carelessly. Three things go wrong, and all three are handled here:
+
+- **Memory** — densifying the fused matrix turns 35 MB into 4.6 GB. It stays sparse throughout.
+- **Row alignment** — if row *i* of the text block is a different campaign than row *i* of the tabular block, you train on mismatched labels and get a model that looks fine and is nonsense.
+- **Leakage** — building the vocabulary before splitting leaks test data into training. Every transformer is fitted on the train block alone, and a test asserts it.
+
+## Why the accuracy is 70% and not 90%
+
+Plenty of Kickstarter models online report 86–94%. Nearly all of them feed in `backers` or `pledged` — the *outcome*. A campaign with 400 backers obviously succeeded; that is reading the answer, not predicting it, and it is useless in practice because an unlaunched campaign has no backers.
+
+This project bans those columns. Under the same honest rules, the best published result is **69.8%**, and always guessing "failed" gets **59.6%**.
+
+**A lower number under honest rules beats a higher number under dishonest ones.**
 
 ## Results
 
@@ -22,10 +42,16 @@ Test set, no leakage columns, nothing selected on test. Majority-class accuracy 
 | ROC-AUC | 0.740 | 0.754 | **0.772** |
 | Avg precision | 0.647 | 0.660 | **0.680** |
 
-For context, the best leakage-free published benchmark using launch-time-only features is
-**69.8%** ([Springer 2019](https://link.springer.com/chapter/10.1007/978-3-030-29516-5_39)).
-Higher figures in the wild (86–94%) generally include `backers` or `pledged` — the outcome
-itself. See [Phase 9 notes](docs/phase9-improvements.md) for the full comparison.
+Gradient boosting is the best model. The logistic regression is kept because it explains its
+predictions — which is why it, not the booster, is the one in the live demo. Both numbers are
+labelled on the site so nobody is misled about which they are playing with.
+
+**Careful with thresholds:** at the F1-optimal threshold of 0.31 the logistic regression reaches
+F1 0.653 and recall 0.82, but accuracy drops to 0.649 — below the majority baseline. Quote the
+threshold whenever you quote a metric, and never mix the best accuracy and the best F1 from
+different rows.
+
+Full benchmark comparison in [PROJECT.md § 10](PROJECT.md#10-how-this-compares-to-published-work).
 
 ## Dataset
 
@@ -46,14 +72,16 @@ itself. See [Phase 9 notes](docs/phase9-improvements.md) for the full comparison
 ## Repository layout
 
 ```text
+PROJECT.md       # the full guide — read this one
 data/
   raw/           # original CSV (do not edit)
   interim/       # cleaned / intermediate tables
   processed/     # model-ready matrices / artifacts
-notebooks/       # exploratory + pipeline notebooks (primary for now)
-src/             # reusable modules (added after notebook validation)
-configs/         # parameters / experiment settings
-docs/            # project documentation
+    v2/          # Phase 9 models, metrics, ablation tables
+notebooks/       # 01-08 frozen pipeline record; 09 the improvements
+src/             # the canonical pipeline (see src/README.md)
+tests/           # 66 tests
+docs/            # GitHub Pages site + markdown documentation
 reports/
   figures/       # plots for evaluation and report
 ```
@@ -66,6 +94,20 @@ source .venv/bin/activate
 pip install -r requirements.txt
 python -m ipykernel install --user --name=ml-summer --display-name="ML Summer Project"
 ```
+
+## Run it
+
+```bash
+python -m src.train        # fit, select on validation, evaluate once on test (~2-3 min)
+python -m src.ablations    # what each feature was worth, and why a tree wins
+python -m src.export_web   # rebuild the browser model (verifies parity with sklearn)
+python -m src.report       # redraw all seven figures — fast, no refitting
+pytest                     # 66 tests, ~6s
+```
+
+To preview the site locally: `cd docs && python -m http.server`, then open
+<http://localhost:8000>. Opening `docs/index.html` straight off disk will not work —
+browsers block the `model.json` fetch on `file://`.
 
 ## Tests
 
@@ -95,6 +137,8 @@ The demo runs the logistic regression (0.696) rather than the boosting model (0.
 
 ## Documentation
 
+- **[PROJECT.md — the complete guide](PROJECT.md)** — every decision and why, all results, what failed, the test suite, a glossary, and the questions you'll get asked. Start here.
+- [`src/README.md`](src/README.md) — module-by-module map of the pipeline code
 - [Project overview](docs/overview.md)
 - [Phases & commits](docs/phases.md)
 - [Data notes](docs/data.md)
