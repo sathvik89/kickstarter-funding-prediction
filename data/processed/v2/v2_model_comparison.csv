@@ -1,0 +1,6 @@
+model,threshold,accuracy,precision,recall,f1,roc_auc,average_precision
+logreg_l2_fused_v2,0.5,0.6963,0.6483,0.5421,0.5905,0.7543,0.6605
+logreg_l2_fused_v2 @val-thr,0.31,0.649,0.5436,0.8169,0.6528,0.7543,0.6605
+logreg_l2_plus_goal_x_category,0.5,0.6966,0.6486,0.5429,0.591,0.755,0.6611
+hgb_tab_plus_textsvd,0.5,0.7069,0.6571,0.5736,0.6126,0.7718,0.68
+hgb_tab_plus_textsvd @val-thr,0.35,0.6788,0.574,0.7937,0.6662,0.7718,0.68

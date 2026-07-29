@@ -1,0 +1,7 @@
+features,n_features,threshold,accuracy,precision,recall,f1,roc_auc,average_precision
+"phase4 baseline (raw goal, duration)",2713,0.5,0.6877,0.6402,0.5179,0.5726,0.7384,0.6452
++ log1p(goal) replaces raw goal,2713,0.5,0.6925,0.6454,0.5297,0.5819,0.7449,0.6514
+"+ title length (name_len, name_words)",2715,0.5,0.6903,0.6425,0.5256,0.5782,0.7433,0.6499
++ launch year / month / dow,2741,0.5,0.6898,0.6414,0.5259,0.5779,0.7428,0.6483
+all engineered (shipped v2),2743,0.5,0.6963,0.6483,0.5421,0.5905,0.7543,0.6605
+"all engineered, NO text block",243,0.5,0.6796,0.6288,0.5045,0.5598,0.7327,0.631

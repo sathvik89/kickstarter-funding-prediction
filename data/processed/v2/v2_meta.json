@@ -1,0 +1,92 @@
+{
+  "n_train": 211782,
+  "n_val": 52946,
+  "n_test": 66183,
+  "n_features": 2743,
+  "blocks": {
+    "text": 2500,
+    "tabular": 243,
+    "interaction": 0
+  },
+  "numeric_cols": [
+    "log_goal",
+    "duration_days",
+    "name_len",
+    "name_words"
+  ],
+  "categorical_cols": [
+    "category",
+    "main_category",
+    "currency",
+    "country",
+    "launch_year",
+    "launch_month",
+    "launch_dow"
+  ],
+  "best_C_by_val_f1": 10.0,
+  "best_threshold_by_val_f1": 0.31,
+  "hgb_threshold_by_val_f1": 0.35,
+  "majority_baseline_accuracy": 0.5961,
+  "selection_policy": "C and thresholds chosen on validation; test touched once",
+  "results": [
+    {
+      "model": "logreg_l2_fused_v2",
+      "threshold": 0.5,
+      "accuracy": 0.6963,
+      "precision": 0.6483,
+      "recall": 0.5421,
+      "f1": 0.5905,
+      "roc_auc": 0.7543,
+      "average_precision": 0.6605
+    },
+    {
+      "model": "logreg_l2_fused_v2 @val-thr",
+      "threshold": 0.31,
+      "accuracy": 0.649,
+      "precision": 0.5436,
+      "recall": 0.8169,
+      "f1": 0.6528,
+      "roc_auc": 0.7543,
+      "average_precision": 0.6605
+    },
+    {
+      "model": "logreg_l2_plus_goal_x_category",
+      "threshold": 0.5,
+      "accuracy": 0.6966,
+      "precision": 0.6486,
+      "recall": 0.5429,
+      "f1": 0.591,
+      "roc_auc": 0.755,
+      "average_precision": 0.6611
+    },
+    {
+      "model": "hgb_tab_plus_textsvd",
+      "threshold": 0.5,
+      "accuracy": 0.7069,
+      "precision": 0.6571,
+      "recall": 0.5736,
+      "f1": 0.6126,
+      "roc_auc": 0.7718,
+      "average_precision": 0.68
+    },
+    {
+      "model": "hgb_tab_plus_textsvd @val-thr",
+      "threshold": 0.35,
+      "accuracy": 0.6788,
+      "precision": 0.574,
+      "recall": 0.7937,
+      "f1": 0.6662,
+      "roc_auc": 0.7718,
+      "average_precision": 0.68
+    }
+  ],
+  "figures": [
+    "09_model_comparison.png",
+    "09_pr_curves.png",
+    "09_threshold_selection.png",
+    "09_success_rate_by_launch_year.png",
+    "09_top_coefficients.png",
+    "09_feature_ablation.png",
+    "09_interaction_vs_tree.png"
+  ]
+}
