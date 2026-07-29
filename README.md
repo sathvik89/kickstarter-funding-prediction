@@ -68,6 +68,7 @@ python -m ipykernel install --user --name=ml-summer --display-name="ML Summer Pr
 - [Feature fusion notes](docs/fusion.md)
 - [Modeling notes (L2 logistic regression)](docs/modeling.md)
 - [Evaluation notes](docs/evaluation.md)
+- [Metric improvement thinking (roughbook)](docs/metric-improvement-notes.md)
 - **[Concept learning guide (HTML)](docs/learning-guide.html)** — TF-IDF, fusion, regularization, metrics, and more
 
 ## Stack

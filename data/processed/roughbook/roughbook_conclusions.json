@@ -1,0 +1,1 @@
+{"majority_accuracy":0.5961349591,"best_f1_threshold_on_l2_C1":0.32,"best_f1_at_that_threshold":0.6423963948,"north_star_recommendation":["f1","average_precision","precision_recall_curve"],"accuracy_role":"sanity check vs majority baseline; not sole optimization target"}
