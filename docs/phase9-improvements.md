@@ -30,6 +30,10 @@ right trade only if a missed fundable campaign costs more than a false alarm.
 \$166M. Standardising that hands a linear model a coefficient on a variable whose useful
 range is the first 0.2% of its span. `log1p` brings skew to **−0.14**.
 
+(That 83.1 is measured on `ks_binary_base.csv`. On the final modelling table,
+`ks_text_cleaned.csv`, it is 83.9 — the difference is the 761 rows dropped for having no
+usable title words. Both are correct for their row set.)
+
 External corroboration: published work finds the negative effect of a higher goal
 ["does not appear until Log(Goal) exceeds 7"](https://www.sciencedirect.com/science/article/pii/S2667277424000033)
 — a genuine non-linearity, not a scaling nicety.
